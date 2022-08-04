@@ -1,0 +1,18 @@
+[user]
+	name = Ryan Caldwell
+	email = ryanjamescaldwell@github.com
+[core]
+	editor = vim
+[alias]
+  last = log -1 HEAD
+  lastsha = rev-parse HEAD
+  latest = !git checkout master && git pull && git checkout -
+  lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+  gud = !git fetch && git reset --hard $(git rev-parse --abbrev-ref --symbolic-full-name @{u})
+  s = status
+  pfl = git push --force-with-lease
+	m = checkout main
+[color]
+	diff = auto
+	interactive = auto
+	branch = auto
