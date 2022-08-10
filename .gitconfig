@@ -10,8 +10,9 @@
   lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
   gud = !git fetch && git reset --hard $(git rev-parse --abbrev-ref --symbolic-full-name @{u})
   s = status
-  pfl = git push --force-with-lease
-	m = checkout main
+  pfl = push --force-with-lease
+	main = checkout main
+  master = checkout master
 [color]
 	diff = auto
 	interactive = auto
