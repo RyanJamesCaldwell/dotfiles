@@ -13,6 +13,7 @@
   pfl = push --force-with-lease
 	main = checkout main
   master = checkout master
+  wip = !git add . && git commit -m 'WIP'
 [color]
 	diff = auto
 	interactive = auto
