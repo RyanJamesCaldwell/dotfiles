@@ -1,8 +1,8 @@
 [user]
-	name = Ryan Caldwell
-	email = ryanjamescaldwell@github.com
+  name = Ryan Caldwell
+  email = ryanjamescaldwell@github.com
 [core]
-	editor = vim
+  editor = vim
 [alias]
   last = log -1 HEAD
   lastsha = rev-parse HEAD
@@ -11,10 +11,10 @@
   gud = !git fetch && git reset --hard $(git rev-parse --abbrev-ref --symbolic-full-name @{u})
   s = status
   pfl = push --force-with-lease
-	main = checkout main
+  main = checkout main
   master = checkout master
   wip = !git add . && git commit -m 'WIP'
 [color]
-	diff = auto
-	interactive = auto
-	branch = auto
+  diff = auto
+  interactive = auto
+  branch = auto
