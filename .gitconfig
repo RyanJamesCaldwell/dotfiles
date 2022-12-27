@@ -11,6 +11,7 @@
   gud = !git fetch && git reset --hard $(git rev-parse --abbrev-ref --symbolic-full-name @{u})
   s = status
   pfl = push --force-with-lease
+  push-new-branch = !git push -u origin $(git rev-parse --abbrev-ref HEAD)
   main = checkout main
   master = checkout master
   wip = !git add . && git commit -m 'WIP'
