@@ -1,0 +1,12 @@
+0000000000000000000000000000000000000000 3338d3920620861f8313a2745fd5d2be39f39534 Ryan Caldwell <ryanjcaldwell4@gmail.com> 1755976864 -0400	clone: from https://github.com/ryanjamescaldwell/kickstart.nvim.git
+3338d3920620861f8313a2745fd5d2be39f39534 5fb061edc39cd3c97dd7ab28cad63c5265970248 Ryan Caldwell <ryanjcaldwell4@gmail.com> 1755976962 -0400	pull: Fast-forward
+5fb061edc39cd3c97dd7ab28cad63c5265970248 414840d177bd0c1aa14a0f299873c90539070a32 Ryan Caldwell <ryanjcaldwell4@gmail.com> 1756000631 -0400	commit: changes
+414840d177bd0c1aa14a0f299873c90539070a32 e230cb9dbd9afd93338edd4143465eafd4d07032 Ryan Caldwell <ryanjcaldwell4@gmail.com> 1756044113 -0400	commit: Add ascii art
+e230cb9dbd9afd93338edd4143465eafd4d07032 cd5cabe1fb4fe0c58a64fdd7b3c3c7e305600037 Ryan Caldwell <ryanjcaldwell4@gmail.com> 1756044134 -0400	commit: lazylock
+cd5cabe1fb4fe0c58a64fdd7b3c3c7e305600037 f12fcf873f5f5c1c0674f5b7f447dc3e4248a1f3 Ryan Caldwell <ryanjcaldwell4@gmail.com> 1756044744 -0400	commit: split keymaps
+f12fcf873f5f5c1c0674f5b7f447dc3e4248a1f3 db1b5b8e246d378c21334fd79867364fd5900822 Ryan Caldwell <ryanjcaldwell4@gmail.com> 1756083691 -0400	commit: Snacks dashboard ig
+db1b5b8e246d378c21334fd79867364fd5900822 5cce11294a39cf77645313563d9d3c0735d8004d Ryan Caldwell <ryanjcaldwell4@gmail.com> 1757117598 -0400	pull: Fast-forward
+5cce11294a39cf77645313563d9d3c0735d8004d 1530102dfb12f4ef9c11c5979a422d31b4846803 Ryan Caldwell <ryanjcaldwell4@gmail.com> 1757280535 -0400	pull: Fast-forward
+1530102dfb12f4ef9c11c5979a422d31b4846803 d3db047b6fc9816bc07a59a0056b596f46cb6167 Ryan Caldwell <ryanjcaldwell4@gmail.com> 1757293300 -0400	commit: Indent line
+d3db047b6fc9816bc07a59a0056b596f46cb6167 29909365d641a98facfba454de1191ad9d1e83b9 Ryan Caldwell <ryanjcaldwell4@gmail.com> 1757293328 -0400	commit (amend): Indent line
+29909365d641a98facfba454de1191ad9d1e83b9 81dcf04e0a0542640f79f20298faa2b3d229d5e8 Ryan Caldwell <ryanjcaldwell4@gmail.com> 1757384672 -0400	pull: Fast-forward
