@@ -1,0 +1,72 @@
+# Starship prompt tuned for this chezmoi-managed setup
+add_newline = true
+command_timeout = 1000
+
+format = "$directory$git_branch$git_status$custom_chezmoi$golang$nodejs$python$package$azure$aws$time$line_break$character"
+
+[character]
+success_symbol = "[>](green) "
+error_symbol = "[>](red) "
+vimcmd_symbol = "[<](blue) "
+
+[directory]
+style = "bold blue"
+truncation_length = 3
+truncation_symbol = ".../"
+
+[git_branch]
+symbol = "git:"
+format = "[$symbol$branch]($style) "
+style = "bold purple"
+
+[git_status]
+style = "bold yellow"
+format = "([$all_status$ahead_behind]($style)) "
+up_to_date = "ok"
+untracked = "untracked"
+stashed = "stashed"
+modified = "mod"
+staged = "stg"
+deleted = "del"
+conflicted = "conf"
+
+[custom.chezmoi]
+command = "printf 'chezmoi'"
+when = "test \"$PWD\" = \"$HOME/.local/share/chezmoi\""
+format = "[$output]($style) "
+style = "bold dimmed red"
+
+[golang]
+symbol = "go:"
+format = "[$symbol$version]($style) "
+style = "bold cyan"
+
+[nodejs]
+symbol = "node:"
+format = "[$symbol$version]($style) "
+style = "bold green"
+
+[python]
+symbol = "py:"
+format = "[$symbol$version]($style) "
+style = "bold blue"
+
+[package]
+symbol = "pkg:"
+display_private = true
+format = "[$symbol$version]($style) "
+style = "bold dimmed cyan"
+
+[azure]
+format = "[azure:$subscription]($style) "
+style = "bold dimmed blue"
+
+[aws]
+format = "[aws:$profile]($style) "
+style = "bold dimmed yellow"
+
+[time]
+disabled = false
+format = "[$time]($style) "
+style = "dimmed white"
+time_format = "%H:%M:%S"
