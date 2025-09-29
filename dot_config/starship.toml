@@ -2,7 +2,7 @@
 add_newline = true
 command_timeout = 1000
 
-format = "$directory$git_branch$custom_chezmoi$golang$nodejs$python$package$azure$aws$time$line_break$character"
+format = "$directory$git_branch$custom_chezmoi$git_metrics$time$line_break$character"
 
 [character]
 success_symbol = "[>](green) "
@@ -18,6 +18,13 @@ truncation_symbol = ".../"
 symbol = "git:"
 format = "[$symbol$branch]($style) "
 style = "bold purple"
+
+[git_metrics]
+disabled = false
+only_nonzero_diffs = true
+added_style = 'bold green'
+deleted_style = 'bold red'
+format = '([+$added]($added_style) )([-$deleted]($deleted_style) )'
 
 [custom.chezmoi]
 command = "printf 'chezmoi'"
