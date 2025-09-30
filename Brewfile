@@ -31,6 +31,7 @@ brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
 brew "oven-sh/bun/bun"
 brew "stripe/stripe-cli/stripe"
+brew "zoxide"
 
 cask "1password-cli"
 cask "font-jetbrains-mono"
