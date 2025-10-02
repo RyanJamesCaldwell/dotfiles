@@ -56,3 +56,71 @@ eval "$(zoxide init --cmd cd zsh)"
 
 # Load in secrets if the file exists
 [[ -f ~/.secrets ]] && source ~/.secrets
+
+# Git Worktree Manager (Harpoon-style)
+wt() {
+  # Save git path and disable zoxide hooks
+  local git_cmd=$(which git)
+  local old_hooks=("${chpwd_functions[@]}")
+  chpwd_functions=()
+
+  if ! $git_cmd rev-parse --git-dir > /dev/null 2>&1; then
+    echo "Not in a git repository"
+    chpwd_functions=("${old_hooks[@]}")
+    return 1
+  fi
+
+  local repo_root=$($git_cmd rev-parse --show-toplevel)
+  local repo_name=$(basename "$repo_root")
+  local wt_base_dir="$(dirname "$repo_root")/${repo_name}-worktrees"
+
+  local result=$($git_cmd worktree list | fzf \
+    --header="[Enter: jump] [Ctrl-N: new] [Ctrl-D: delete]" \
+    --expect=ctrl-n,ctrl-d)
+
+  local key=$(echo "$result" | head -1)
+  local selection=$(echo "$result" | tail -1)
+
+  case "$key" in
+    ctrl-n)
+      # Create new worktree
+      read "branch?Branch name: "
+      if [[ -n "$branch" ]]; then
+        mkdir -p "$wt_base_dir"
+        if $git_cmd worktree add "$wt_base_dir/$branch" -b "$branch"; then
+          builtin cd "$wt_base_dir/$branch"
+          chpwd_functions=("${old_hooks[@]}")
+          echo "Created and switched to worktree: $branch"
+        fi
+      fi
+      ;;
+    ctrl-d)
+      # Delete worktree
+      if [[ -n "$selection" ]]; then
+        local path=${selection%% *}
+        local branch=${selection##* }
+        if [[ "$path" != "$repo_root" ]]; then
+          echo "Delete worktree '$branch' at $path? (y/N)"
+          if read -q; then
+            echo ""
+            $git_cmd worktree remove "$path" && echo "Deleted worktree: $branch"
+          fi
+        else
+          echo "Cannot delete main worktree"
+        fi
+      fi
+      ;;
+    *)
+      # Jump to worktree
+      if [[ -n "$selection" ]]; then
+        local path=${selection%% *}
+        builtin cd "$path"
+        chpwd_functions=("${old_hooks[@]}")
+        echo "Switched to: $path"
+      fi
+      ;;
+  esac
+
+  # Restore hooks if still in function
+  chpwd_functions=("${old_hooks[@]}")
+}

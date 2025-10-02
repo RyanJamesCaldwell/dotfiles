@@ -169,7 +169,7 @@ config.inactive_pane_hsb = {
 config.enable_tab_bar = true
 config.tab_bar_at_bottom = true
 config.use_fancy_tab_bar = false
-config.hide_tab_bar_if_only_one_tab = false
+config.hide_tab_bar_if_only_one_tab = true
 
 -- Show pane information in tab titles
 config.tab_max_width = 32
