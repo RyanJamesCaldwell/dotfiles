@@ -88,7 +88,18 @@ wt() {
       if [[ -n "$branch" ]]; then
         mkdir -p "$wt_base_dir"
         if $git_cmd worktree add "$wt_base_dir/$branch" -b "$branch"; then
-          builtin cd "$wt_base_dir/$branch"
+          # Copy gitignored config files from current worktree
+          local current_dir=$(pwd)
+          local new_wt_dir="$wt_base_dir/$branch"
+
+          for file in "$current_dir"/.env*(N) "$current_dir"/*.local(N); do
+            if [[ -f "$file" ]]; then
+              cp "$file" "$new_wt_dir/"
+              echo "Copied $(basename "$file")"
+            fi
+          done
+
+          builtin cd "$new_wt_dir"
           chpwd_functions=("${old_hooks[@]}")
           echo "Created and switched to worktree: $branch"
         fi
