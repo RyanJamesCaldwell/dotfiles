@@ -1,0 +1,10 @@
+{{- $profilePath := joinPath .chezmoi.homeDir ".chezmoi_profile" -}}
+{{- $profile := "personal" -}}
+{{- with stat $profilePath -}}
+  {{- $value := trim (include $profilePath) -}}
+  {{- if $value -}}
+    {{- $profile = $value -}}
+  {{- end -}}
+{{- end -}}
+data:
+  profile: {{ $profile }}

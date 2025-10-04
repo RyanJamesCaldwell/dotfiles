@@ -1,4 +1,11 @@
 # oh-my-zsh
+if [[ -z "$CHEZMOI_PROFILE" ]]; then
+  echo "chezmoi profile not set; defaulting to 'personal'"
+fi
+
+export CHEZMOI_PROFILE="{{ .profile }}"
+[[ -f "$HOME/.zshrc.{{ .profile }}" ]] && source "$HOME/.zshrc.{{ .profile }}"
+
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME=""
 plugins=(git)

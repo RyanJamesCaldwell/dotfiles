@@ -25,6 +25,12 @@ The bootstrap script installs essential dependencies, runs `brew bundle`, and ap
 
 Use `chezmoi diff` to inspect changes before applying, and `chezmoi doctor` to verify templates on new hosts.
 
+## Profiles
+
+- Drop `work` or `personal` into `~/.chezmoi_profile` (not tracked in git) to pick the active configuration; the default remains `personal` when the file is absent.
+- Chezmoi exposes the selection to templates as `.profile`, which currently feeds into `CHEZMOI_PROFILE` and optional overrides sourced from `~/.zshrc.<profile>`.
+- After toggling profiles, rerun `chezmoi apply` (and optionally `chezmoi diff`) to materialize the right variant.
+
 ## License
 
 MIT License © Ryan Caldwell
