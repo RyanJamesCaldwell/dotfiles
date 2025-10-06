@@ -4,7 +4,7 @@ if [[ -n "${CHEZMOI_PROFILE:-}" ]]; then
 elif [[ -s "$HOME/.chezmoi_profile" ]]; then
   profile="$(<"$HOME/.chezmoi_profile")"
 else
-  profile="{{ if .profile }}{{ .profile }}{{ else }}personal{{ end }}"
+  profile="{{ .profile | default "work" }}"
 fi
 
 if [[ -z "$profile" ]]; then
