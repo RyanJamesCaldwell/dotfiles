@@ -31,6 +31,7 @@ elif command -v brew >/dev/null 2>&1; then
 fi
 
 export PATH="/opt/homebrew/bin:/opt/homebrew/opt/curl/bin:$HOME/.local/bin:$PATH"
+export PATH="$HOME/go/bin:$PATH"
 
 set -o vi
 tabs -2
@@ -103,14 +104,22 @@ wt() {
       if [[ -n "$branch" ]]; then
         mkdir -p "$wt_base_dir"
         if $git_cmd worktree add "$wt_base_dir/$branch" -b "$branch"; then
-          # Copy gitignored config files from current worktree
-          local current_dir=$(pwd)
+          # Copy gitignored config files from the primary worktree root
+          local source_dir="$repo_root"
           local new_wt_dir="$wt_base_dir/$branch"
 
-          for file in "$current_dir"/.env*(N) "$current_dir"/*.local(N); do
-            if [[ -f "$file" ]]; then
-              cp "$file" "$new_wt_dir/"
-              echo "Copied $(basename "$file")"
+          setopt local_options null_glob
+
+          for file in "$source_dir"/.*(DN); do
+            local filename="${file:t}"
+
+            if [[ "$filename" == "." || "$filename" == ".." || "$filename" == ".git" ]]; then
+              continue
+            fi
+
+            if [[ -f "$file" || -L "$file" ]]; then
+              cp -p "$file" "$new_wt_dir/$filename"
+              echo "Copied $filename"
             fi
           done
 
