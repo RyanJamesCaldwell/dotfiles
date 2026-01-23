@@ -574,7 +574,9 @@ require("lazy").setup({
 
 			-- Session management
 			vim.keymap.set("n", "<leader>sp", function()
-				require("persistence").select()
+				local persistence = require("persistence")
+				persistence.save()
+				persistence.select()
 			end, { desc = "[S]earch [P]rojects (sessions)" })
 		end,
 	},
@@ -1514,9 +1516,7 @@ require("lazy").setup({
 	{
 		"folke/persistence.nvim",
 		event = "BufReadPre",
-		opts = {
-			options = vim.opt.sessionoptions:get(), -- use current sessionoptions
-		},
+		opts = {},
 		config = function(_, opts)
 			-- Configure sessionoptions to exclude problematic buffers
 			vim.opt.sessionoptions = {
@@ -1531,6 +1531,7 @@ require("lazy").setup({
 				"terminal",
 			}
 
+			opts.options = vim.opt.sessionoptions:get() -- use current sessionoptions
 			require("persistence").setup(opts)
 
 			-- Proper autocmd setup for neo-tree integration
@@ -1549,7 +1550,6 @@ require("lazy").setup({
 				pattern = "PersistenceLoadPre",
 				callback = function()
 					-- Save current session and close all buffers before loading new one
-					require("persistence").save()
 					vim.cmd("silent %bd!")
 				end,
 			})
