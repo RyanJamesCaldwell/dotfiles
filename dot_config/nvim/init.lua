@@ -130,17 +130,6 @@ vim.keymap.set("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right win
 vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
--- Buffer navigation by ordinal number
-vim.keymap.set("n", "<leader>1", "<cmd>BufferLineGoToBuffer 1<cr>", { desc = "Go to buffer 1" })
-vim.keymap.set("n", "<leader>2", "<cmd>BufferLineGoToBuffer 2<cr>", { desc = "Go to buffer 2" })
-vim.keymap.set("n", "<leader>3", "<cmd>BufferLineGoToBuffer 3<cr>", { desc = "Go to buffer 3" })
-vim.keymap.set("n", "<leader>4", "<cmd>BufferLineGoToBuffer 4<cr>", { desc = "Go to buffer 4" })
-vim.keymap.set("n", "<leader>5", "<cmd>BufferLineGoToBuffer 5<cr>", { desc = "Go to buffer 5" })
-vim.keymap.set("n", "<leader>6", "<cmd>BufferLineGoToBuffer 6<cr>", { desc = "Go to buffer 6" })
-vim.keymap.set("n", "<leader>7", "<cmd>BufferLineGoToBuffer 7<cr>", { desc = "Go to buffer 7" })
-vim.keymap.set("n", "<leader>8", "<cmd>BufferLineGoToBuffer 8<cr>", { desc = "Go to buffer 8" })
-vim.keymap.set("n", "<leader>9", "<cmd>BufferLineGoToBuffer 9<cr>", { desc = "Go to buffer 9" })
-
 -- Smart buffer delete function
 local function smart_buffer_delete(force)
 	local current_buf = vim.api.nvim_get_current_buf()
@@ -168,6 +157,7 @@ vim.keymap.set("n", "<leader>bD", function()
 end, { desc = "[B]uffer [D]elete (force)" })
 vim.keymap.set("n", "<leader>bn", "<cmd>bnext<cr>", { desc = "[B]uffer [N]ext" })
 vim.keymap.set("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "[B]uffer [P]revious" })
+vim.keymap.set("n", "gb", "<cmd>BufferLinePick<cr>", { desc = "[B]uffer pick" })
 vim.keymap.set("n", "<leader>bl", "<cmd>BufferLineCloseLeft<cr>", { desc = "[B]uffer close all to the [L]eft" })
 vim.keymap.set("n", "<leader>br", "<cmd>BufferLineCloseRight<cr>", { desc = "[B]uffer close all to the [R]ight" })
 vim.keymap.set("n", "<leader>bo", "<cmd>BufferLineCloseOthers<cr>", { desc = "[B]uffer close all [O]thers" })
@@ -553,6 +543,7 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>ss", builtin.builtin, { desc = "[S]earch [S]elect Telescope" })
 			vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch current [W]ord" })
 			vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]rep" })
+			vim.keymap.set("n", "<leader>sb", builtin.buffers, { desc = "[S]earch [B]uffers" })
 			vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
 			vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
 			vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
@@ -1593,19 +1584,6 @@ require("lazy").setup({
 			end, { desc = "Harpoon: Toggle quick menu" })
 
 			-- Navigate to specific harpoon entries
-			vim.keymap.set("n", "<C-1>", function()
-				harpoon:list():select(1)
-			end, { desc = "Harpoon: Go to file 1" })
-			vim.keymap.set("n", "<C-2>", function()
-				harpoon:list():select(2)
-			end, { desc = "Harpoon: Go to file 2" })
-			vim.keymap.set("n", "<C-3>", function()
-				harpoon:list():select(3)
-			end, { desc = "Harpoon: Go to file 3" })
-			vim.keymap.set("n", "<C-4>", function()
-				harpoon:list():select(4)
-			end, { desc = "Harpoon: Go to file 4" })
-
 			-- Telescope integration for harpoon
 			local function toggle_telescope_harpoon()
 				local harpoon_files = harpoon:list()
