@@ -415,6 +415,11 @@ require("lazy").setup({
 			-- delay between pressing a key and opening which-key (milliseconds)
 			-- this setting is independent of vim.o.timeoutlen
 			delay = 0,
+			-- Only trigger which-key for leader to avoid extra work on other prefixes.
+			triggers = {
+				{ "<leader>", mode = "n" },
+				{ "<leader>", mode = "x" },
+			},
 			icons = {
 				-- set icon mappings to true if you have a Nerd Font
 				mappings = vim.g.have_nerd_font,
@@ -1475,6 +1480,10 @@ require("lazy").setup({
 		},
 		config = function()
 			require("noice").setup({
+				messages = {
+					enabled = true,
+					view = "notify",
+				},
 				routes = {
 					{
 						filter = {
@@ -1501,6 +1510,8 @@ require("lazy").setup({
 					inc_rename = false, -- enables an input dialog for inc-rename.nvim
 				},
 			})
+
+			vim.keymap.set("n", "<leader>sm", "<cmd>Noice history<cr>", { desc = "[S]earch [M]essages" })
 		end,
 	},
 	{
