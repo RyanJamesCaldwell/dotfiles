@@ -339,30 +339,6 @@ Bonsai = {
 	[[   (_)                    (_)          ]],
 }
 
-GrimReaper = {
-	[[              ...                             ]],
-	[[             ;::::;                           ]],
-	[[           ;::::; :;                          ]],
-	[[         ;:::::'   :;                         ]],
-	[[        ;:::::;     ;.                        ]],
-	[[       ,:::::'       ;           OOO\         ]],
-	[[       ::::::;       ;          OOOOO\        ]],
-	[[       ;:::::;       ;         OOOOOOOO       ]],
-	[[      ,;::::::;     ;'         / OOOOOOO      ]],
-	[[    ;:::::::::`. ,,,;.        /  / DOOOOOO    ]],
-	[[  .';:::::::::::::::::;,     /  /     DOOOO   ]],
-	[[ ,::::::;::::::;;;;::::;,   /  /        DOOO  ]],
-	[[;`::::::`'::::::;;;::::: ,#/  /          DOOO ]],
-	[[:`:::::::`;::::::;;::: ;::#  /            DOOO]],
-	[[::`:::::::`;:::::::: ;::::# /              DOO]],
-	[[`:`:::::::`;:::::: ;::::::#/               DOO]],
-	[[ :::`:::::::`;; ;:::::::::##                OO]],
-	[[ ::::`:::::::`;::::::::;:::#                OO]],
-	[[ `:::::`::::::::::::;'`:;::#                O ]],
-	[[  `:::::`::::::::;' /  / `:#                  ]],
-	[[   ::::::`:::::;'  /  /   `#                  ]],
-}
-
 -- [[ Configure and install plugins ]]
 --
 --  To check the current status of your plugins, run
@@ -1312,59 +1288,117 @@ require("lazy").setup({
 				dashboard = {
 					enabled = true,
 					sections = {
-						{ section = "header" },
 						{
-							icon = " ",
 							section = "terminal",
-							enabled = function()
-								return Snacks.git.get_root() ~= nil
-							end,
-							-- cmd = 'git status --porcelain -b && echo "" && git --no-pager diff --stat',
-							cmd = "git status --short --branch --renames",
-							height = 10,
+							cmd = "chafa ~/.config/nvim/assets/thisisfine.jpg --format symbols --symbols vhalf --size 60x17 --stretch; sleep .1",
+							height = 17,
 							padding = 1,
-							indent = 2,
 						},
 						{
-							section = "keys",
-							gap = 1,
-							padding = 1,
-							keys = {
-								-- {
-								-- 	icon = " ",
-								-- 	key = "g",
-								-- 	desc = "Pull Requests",
-								-- 	action = function()
-								-- 		vim.fn.system("open https://github.com/pulls")
-								-- 	end,
-								-- },
-								-- {
-								-- 	icon = " ",
-								-- 	key = "r",
-								-- 	desc = "Recent Files",
-								-- 	action = ":lua Snacks.dashboard.pick('oldfiles')",
-								-- },
-								-- {
-								-- 	icon = " ",
-								-- 	key = "c",
-								-- 	desc = "Config",
-								-- 	action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
-								-- },
-								-- {
-								-- 	icon = "󰒲 ",
-								-- 	key = "L",
-								-- 	desc = "Lazy",
-								-- 	action = ":Lazy",
-								-- 	enabled = package.loaded.lazy ~= nil,
-								-- },
-								-- {
-								-- 	icon = " ",
-								-- 	key = "q",
-								-- 	desc = "Quit",
-								-- 	action = ":qa",
-								-- },
+							pane = 2,
+							{
+								icon = " ",
+								section = "terminal",
+								enabled = function()
+									return Snacks.git.get_root() ~= nil
+								end,
+								-- cmd = 'git status --porcelain -b && echo "" && git --no-pager diff --stat',
+								cmd = "git status --short --branch --renames",
+								height = 10,
+								padding = 1,
+								indent = 2,
+							},
+							{
+								icon = " ",
+								key = "g",
+								desc = "Pull Requests",
+								action = function()
+									local root = Snacks.git.get_root()
+									if not root then
+										vim.notify("No git root found for pull requests.", vim.log.levels.WARN)
+										return
+									end
+
+									local remote =
+										vim.fn.systemlist({ "git", "-C", root, "remote", "get-url", "origin" })
+									if vim.v.shell_error ~= 0 or #remote == 0 then
+										vim.notify("No origin remote found for pull requests.", vim.log.levels.WARN)
+										return
+									end
+
+									local url = remote[1]:gsub("%.git$", "")
+									url = url:gsub("^git@([^:]+):", "https://%1/")
+									url = url:gsub("^ssh://git@([^/]+)/", "https://%1/")
+
+									vim.fn.system({ "open", url .. "/pulls" })
+								end,
+							},
+							{
+								icon = " ",
+								key = "r",
+								desc = "Recent Files",
+								action = ":lua Snacks.dashboard.pick('oldfiles')",
+							},
+							{
+								icon = " ",
+								key = "s",
+								desc = "Restore Session",
+								action = ":lua require('persistence').select()",
 							},
 						},
+						-- { section = "header" },
+						-- {
+						-- 	icon = " ",
+						-- 	section = "terminal",
+						-- 	enabled = function()
+						-- 		return Snacks.git.get_root() ~= nil
+						-- 	end,
+						-- 	-- cmd = 'git status --porcelain -b && echo "" && git --no-pager diff --stat',
+						-- 	cmd = "git status --short --branch --renames",
+						-- 	height = 10,
+						-- 	padding = 1,
+						-- 	indent = 2,
+						-- },
+						-- {
+						-- 	section = "keys",
+						-- 	gap = 1,
+						-- 	padding = 1,
+						-- 	keys = {
+						-- 		-- {
+						-- 		-- 	icon = " ",
+						-- 		-- 	key = "g",
+						-- 		-- 	desc = "Pull Requests",
+						-- 		-- 	action = function()
+						-- 		-- 		vim.fn.system("open https://github.com/pulls")
+						-- 		-- 	end,
+						-- 		-- },
+						-- 		-- {
+						-- 		-- 	icon = " ",
+						-- 		-- 	key = "r",
+						-- 		-- 	desc = "Recent Files",
+						-- 		-- 	action = ":lua Snacks.dashboard.pick('oldfiles')",
+						-- 		-- },
+						-- 		-- {
+						-- 		-- 	icon = " ",
+						-- 		-- 	key = "c",
+						-- 		-- 	desc = "Config",
+						-- 		-- 	action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
+						-- 		-- },
+						-- 		-- {
+						-- 		-- 	icon = "󰒲 ",
+						-- 		-- 	key = "L",
+						-- 		-- 	desc = "Lazy",
+						-- 		-- 	action = ":Lazy",
+						-- 		-- 	enabled = package.loaded.lazy ~= nil,
+						-- 		-- },
+						-- 		-- {
+						-- 		-- 	icon = " ",
+						-- 		-- 	key = "q",
+						-- 		-- 	desc = "Quit",
+						-- 		-- 	action = ":qa",
+						-- 		-- },
+						-- 	},
+						-- },
 					},
 					preset = {
 						header = table.concat(ThisIsFine, "\n"),
