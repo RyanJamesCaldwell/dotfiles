@@ -261,33 +261,52 @@ Monster = {
 }
 
 BagEnd = {
-	[[                     . .:.:.:.:. .:\     /:. .:.:.:.:. ,                           ]],
-	[[                .-._  `..:.:. . .:.:`- -':.:. . .:.:.,'  _.-.                      ]],
-	[[              .:.:.`-._`-._..-''_...---..._``-.._.-'_.-'.:.:.                      ]],
-	[[            .:.:. . .:_.`' _..-''._________,``-.._ `.._:. . .:.:.                  ]],
-	[[         .:.:. . . ,-'_.-''      ||_-(O)-_||      ``-._`-. . . .:.:.               ]],
-	[[       .:. . . .,'_.'           '---------'           `._`.. . . .:.               ]],
-	[[      :.:. . . ,','               _________               `.`. . . .:.:            ]],
-	[[     `.:.:. .,','            _.-''_________``-._            `._.     _.'           ]],
-	[[   -._  `._./ /            ,'_.-'' ,       ``-._`.          ,' '`:..'  _.-         ]],
-	[[  .:.:`-.._' /           ,','                   `.`.       /'  '  \\\\.-':.:.        ]],
-	[[  :.:. . ./ /          ,','               ,       `.`.    / '  '  '\\\\. .:.:        ]],
-	[[ :.:. . ./ /          / /    ,                      \\ \\  :  '  '  ' \\\\. .:.:       ]],
-	[[ .:. . ./ /          / /            ,          ,     \\ \\ :  '  '  ' '::. .:.       ]],
-	[[ :. . .: :    o     / /                               \\ ;'  '  '  ' ':: . .:       ]],
-	[[ .:. . | |   /_\\   : :     ,                      ,    : '  '  '  ' ' :: .:.       ]],
-	[[ :. . .| |  (( ))  | |,          ,       ,             |\\'__',-._.' ' ||. .:       ]],
-	[[ .:.:. | |   `-'   | |---....____                      | ,---\\/--/  ' ||:.:.       ]],
-	[[ ------| |         : :    ,.     ```--..._   ,         |''  '  '  ' ' ||----       ]],
-	[[ _...--. |  ,       \\ \\             ,.    `-._     ,  /: '  '  '  ' ' ;;..._       ]],
-	[[ :.:. .| | -O-       \\ \\    ,.                `._    / /:'  '  '  ' ':: .:.:       ]],
-	[[ .:. . | |_(`__       \\ \\                        `. / / :'  '  '  ' ';;. .:.       ]],
-	[[ :. . .| |;' (_)       `.`.          ,.    ,.     ,','   \\  '  '  ' ;;. . .:       ]],
-	[[ .:. . | |-.--'(         `.`-._  ,.           _,-','      \\ '  '  '//| . .:.       ]],
-	[[ :. . .;)()(__)(___________`-._`-.._______..-'_.-'_________\\'  '  //_:. . .:       ]],
-	[[ .:.:,' \\/\\/--\\/--------------------------------------------`._',;'`. `.:.:.       ]],
-	[[ :.,' ,' ,'  ,'  /   /   /   ,-------------------.   \\   \\   \\  `. `.`. `..:       ]],
-	[[ ,' ,'  '   /   /   /   /   //                   \\\\   \\   \\   \\   \\  ` `.SSt       ]],
+	[[
+                      . .:.:.:.:. .:\     /:. .:.:.:.:. ,
+               .-._  `..:.:. . .:.:`- -':.:. . .:.:.,'  _.-.
+              .:.:.`-._`-._..-''_...---..._``-.._.-'_.-'.:.:.
+           .:.:. . .:_.`' _..-''._________,``-.._ `.._:. . .:.:.
+        .:.:. . . ,-'_.-''      ||_-(O)-_||      ``-._`-. . . .:.:.
+       .:. . . .,'_.'           '---------'           `._`.. . . .:.
+     :.:. . . ,','               _________               `.`. . . .:.:
+    `.:.:. .,','            _.-''_________``-._            `._.     _.'
+  -._  `._./ /            ,'_.-'' ,       ``-._`.          ,' '`:..'  _.-
+ .:.:`-.._' /           ,','                   `.`.       /'  '  \\.-':.:.
+ :.:. . ./ /          ,','               ,       `.`.    / '  '  '\\. .:.: 
+:.:. . ./ /          / /    ,                      \ \  :  '  '  ' \\. .:.:
+.:. . ./ /          / /            ,          ,     \ \ :  '  '  ' '::. .:.
+:. . .: :    o     / /                               \ ;'  '  '  ' ':: . .:
+.:. . | |   /_\   : :     ,                      ,    : '  '  '  ' ' :: .:.
+:. . .| |  ((<))  | |,          ,       ,             |\'__',-._.' ' ||. .:
+.:.:. | |   `-'   | |---....____                      | ,---\/--/  ' ||:.:.
+------| |         : :    ,.     ```--..._   ,         |''  '  '  ' ' ||----
+_...--. |  ,       \ \             ,.    `-._     ,  /: '  '  '  ' ' ;;..._
+:.:. .| | -O-       \ \    ,.                `._    / /:'  '  '  ' ':: .:.:
+.:. . | |_(`__       \ \                        `. / / :'  '  '  ' ';;. .:.
+:. . .<' (_)  `>      `.`.          ,.    ,.     ,','   \  '  '  ' ;;. . .:
+.:. . |):-.--'(         `.`-._  ,.           _,-','      \ '  '  '//| . .:.
+:. . .;)()(__)(___________`-._`-.._______..-'_.-'_________\'  '  //_:. . .:
+.:.:,' \/\/--\/--------------------------------------------`._',;'`. `.:.:.
+:.,' ,' ,'  ,'  /   /   /   ,-------------------.   \   \   \  `. `.`. `..:
+,' ,'  '   /   /   /   /   //                   \\   \   \   \   \  ` `.SSt
+]],
+}
+
+ThisIsFine = {
+	[[
+                                                                                               
+@@@@@@@  @@@  @@@  @@@   @@@@@@      @@@   @@@@@@      @@@@@@@@  @@@  @@@  @@@  @@@@@@@@       
+@@@@@@@  @@@  @@@  @@@  @@@@@@@      @@@  @@@@@@@      @@@@@@@@  @@@  @@@@ @@@  @@@@@@@@       
+  @@!    @@!  @@@  @@!  !@@          @@!  !@@          @@!       @@!  @@!@!@@@  @@!            
+  !@!    !@!  @!@  !@!  !@!          !@!  !@!          !@!       !@!  !@!!@!@!  !@!            
+  @!!    @!@!@!@!  !!@  !!@@!!       !!@  !!@@!!       @!!!:!    !!@  @!@ !!@!  @!!!:!         
+  !!!    !!!@!!!!  !!!   !!@!!!      !!!   !!@!!!      !!!!!:    !!!  !@!  !!!  !!!!!:         
+  !!:    !!:  !!!  !!:       !:!     !!:       !:!     !!:       !!:  !!:  !!!  !!:            
+  :!:    :!:  !:!  :!:      !:!      :!:      !:!      :!:       :!:  :!:  !:!  :!:       :!:  
+   ::    ::   :::   ::  :::: ::       ::  :::: ::       ::        ::   ::   ::   :: ::::  :::  
+   :      :   : :  :    :: : :       :    :: : :        :        :    ::    :   : :: ::   :::  
+                                                                                               
+]],
 }
 
 Hydra = {
@@ -1311,84 +1330,84 @@ require("lazy").setup({
 							gap = 1,
 							padding = 1,
 							keys = {
-								{
-									icon = " ",
-									key = "g",
-									desc = "Pull Requests",
-									action = function()
-										vim.fn.system("open https://github.com/pulls")
-									end,
-								},
-								{
-									icon = " ",
-									key = "r",
-									desc = "Recent Files",
-									action = ":lua Snacks.dashboard.pick('oldfiles')",
-								},
-								{
-									icon = " ",
-									key = "c",
-									desc = "Config",
-									action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
-								},
-								{
-									icon = "󰒲 ",
-									key = "L",
-									desc = "Lazy",
-									action = ":Lazy",
-									enabled = package.loaded.lazy ~= nil,
-								},
-								{
-									icon = " ",
-									key = "q",
-									desc = "Quit",
-									action = ":qa",
-								},
+								-- {
+								-- 	icon = " ",
+								-- 	key = "g",
+								-- 	desc = "Pull Requests",
+								-- 	action = function()
+								-- 		vim.fn.system("open https://github.com/pulls")
+								-- 	end,
+								-- },
+								-- {
+								-- 	icon = " ",
+								-- 	key = "r",
+								-- 	desc = "Recent Files",
+								-- 	action = ":lua Snacks.dashboard.pick('oldfiles')",
+								-- },
+								-- {
+								-- 	icon = " ",
+								-- 	key = "c",
+								-- 	desc = "Config",
+								-- 	action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
+								-- },
+								-- {
+								-- 	icon = "󰒲 ",
+								-- 	key = "L",
+								-- 	desc = "Lazy",
+								-- 	action = ":Lazy",
+								-- 	enabled = package.loaded.lazy ~= nil,
+								-- },
+								-- {
+								-- 	icon = " ",
+								-- 	key = "q",
+								-- 	desc = "Quit",
+								-- 	action = ":qa",
+								-- },
 							},
 						},
 					},
 					preset = {
-						header = table.concat(Hydra, "\n"),
+						header = table.concat(ThisIsFine, "\n"),
 						keys = {
-							{
-								icon = " ",
-								key = "g",
-								desc = "Pull Requests",
-								action = function()
-									vim.fn.system("open https://github.com/pulls")
-								end,
-							},
-							{
-								icon = " ",
-								key = "r",
-								desc = "Recent Files",
-								action = ":lua Snacks.dashboard.pick('oldfiles')",
-							},
-							{
-								icon = " ",
-								key = "c",
-								desc = "Config",
-								action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
-							},
-							{
-								icon = " ",
-								key = "s",
-								desc = "Restore Session",
-								action = ":lua require('persistence').select()",
-							},
-							{
-								icon = "󰒲 ",
-								key = "L",
-								desc = "Lazy",
-								action = ":Lazy",
-								enabled = package.loaded.lazy ~= nil,
-							},
-							{
-								icon = " ",
-								key = "q",
-								desc = "Quit",
-								action = ":qa",
-							},
+							-- {
+							-- 	icon = " ",
+							-- 	key = "g",
+							-- 	desc = "Pull Requests",
+							-- 	action = function()
+							-- 		vim.fn.system("open https://github.com/pulls")
+							-- 	end,
+							-- },
+							-- {
+							-- 	icon = " ",
+							-- 	key = "r",
+							-- 	desc = "Recent Files",
+							-- 	action = ":lua Snacks.dashboard.pick('oldfiles')",
+							-- },
+							-- {
+							-- 	icon = " ",
+							-- 	key = "c",
+							-- 	desc = "Config",
+							-- 	action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
+							-- },
+							-- {
+							-- 	icon = " ",
+							-- 	key = "s",
+							-- 	desc = "Restore Session",
+							-- 	action = ":lua require('persistence').select()",
+							-- },
+							-- {
+							-- 	icon = "󰒲 ",
+							-- 	key = "L",
+							-- 	desc = "Lazy",
+							-- 	action = ":Lazy",
+							-- 	enabled = package.loaded.lazy ~= nil,
+							-- },
+							-- {
+							-- 	icon = " ",
+							-- 	key = "q",
+							-- 	desc = "Quit",
+							-- 	action = ":qa",
+							-- },
 						},
 					},
 				},
@@ -1619,6 +1638,7 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>sh", toggle_telescope_harpoon, { desc = "[S]earch [H]arpoon files" })
 		end,
 	},
+	{ "github/copilot.vim" },
 
 	-- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
 	-- init.lua. If you want these files, they are in the repository, so you can just download them and
