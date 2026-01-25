@@ -518,11 +518,6 @@ require("lazy").setup({
 				-- You can put your default mappings / updates / etc. in here
 				--  All the info you're looking for is in `:help telescope.setup()`
 				--
-				-- defaults = {
-				--   mappings = {
-				--     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-				--   },
-				-- },
 				-- pickers = {}
 				extensions = {
 					["ui-select"] = {
@@ -547,7 +542,9 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
 			vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
 			vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
-			vim.keymap.set("n", "<leader><leader>", builtin.find_files, { desc = "[S]earch [F]iles" })
+			vim.keymap.set("n", "<leader><leader>", function()
+				builtin.find_files({ hidden = true, no_ignore = true })
+			end, { desc = "[S]earch [F]iles" })
 
 			-- Slightly advanced example of overriding default behavior and theme
 			vim.keymap.set("n", "<leader>/", function()
@@ -1050,28 +1047,6 @@ require("lazy").setup({
 		},
 	},
 
-	--{ -- You can easily change to a different colorscheme.
-	-- Change the name of the colorscheme plugin below, and then
-	-- change the command in the config to whatever the name of that colorscheme is.
-	--
-	-- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-	--'folke/tokyonight.nvim',
-	--priority = 1000, -- Make sure to load this before all the other start plugins.
-	--config = function()
-	-----@diagnostic disable-next-line: missing-fields
-	--require('tokyonight').setup {
-	--styles = {
-	--comments = { italic = false }, -- Disable italics in comments
-	--},
-	--}
-
-	-- Load the colorscheme here.
-	-- Like many other themes, this one has different styles, and you could load
-	-- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-	--vim.cmd.colorscheme 'tokyonight-storm'
-	--end,
-	--},
-
 	-- Highlight todo, notes, etc in comments
 	{
 		"folke/todo-comments.nvim",
@@ -1205,7 +1180,7 @@ require("lazy").setup({
 		"rose-pine/neovim",
 		name = "rose-pine",
 		config = function()
-			vim.cmd("colorscheme rose-pine")
+			vim.cmd("colorscheme rose-pine-moon")
 		end,
 	},
 	{
@@ -1302,8 +1277,8 @@ require("lazy").setup({
 								enabled = function()
 									return Snacks.git.get_root() ~= nil
 								end,
-								-- cmd = 'git status --porcelain -b && echo "" && git --no-pager diff --stat',
-								cmd = "git status --short --branch --renames",
+								cmd = 'git status --porcelain -b && echo "" && git --no-pager diff --stat',
+								-- cmd = "git status --short --branch --renames",
 								height = 10,
 								padding = 1,
 								indent = 2,
@@ -1333,12 +1308,13 @@ require("lazy").setup({
 									vim.fn.system({ "open", url .. "/pulls" })
 								end,
 							},
-							{
-								icon = " ",
-								key = "r",
-								desc = "Recent Files",
-								action = ":lua Snacks.dashboard.pick('oldfiles')",
-							},
+							-- {
+							-- 	section = "recent_files",
+							-- 	icon = " ",
+							-- 	key = "r",
+							-- 	desc = "Recent Files",
+							-- 	action = ":lua Snacks.dashboard.sections.recentfiles({cwd = true})",
+							-- },
 							{
 								icon = " ",
 								key = "s",
@@ -1346,103 +1322,10 @@ require("lazy").setup({
 								action = ":lua require('persistence').select()",
 							},
 						},
-						-- { section = "header" },
-						-- {
-						-- 	icon = " ",
-						-- 	section = "terminal",
-						-- 	enabled = function()
-						-- 		return Snacks.git.get_root() ~= nil
-						-- 	end,
-						-- 	-- cmd = 'git status --porcelain -b && echo "" && git --no-pager diff --stat',
-						-- 	cmd = "git status --short --branch --renames",
-						-- 	height = 10,
-						-- 	padding = 1,
-						-- 	indent = 2,
-						-- },
-						-- {
-						-- 	section = "keys",
-						-- 	gap = 1,
-						-- 	padding = 1,
-						-- 	keys = {
-						-- 		-- {
-						-- 		-- 	icon = " ",
-						-- 		-- 	key = "g",
-						-- 		-- 	desc = "Pull Requests",
-						-- 		-- 	action = function()
-						-- 		-- 		vim.fn.system("open https://github.com/pulls")
-						-- 		-- 	end,
-						-- 		-- },
-						-- 		-- {
-						-- 		-- 	icon = " ",
-						-- 		-- 	key = "r",
-						-- 		-- 	desc = "Recent Files",
-						-- 		-- 	action = ":lua Snacks.dashboard.pick('oldfiles')",
-						-- 		-- },
-						-- 		-- {
-						-- 		-- 	icon = " ",
-						-- 		-- 	key = "c",
-						-- 		-- 	desc = "Config",
-						-- 		-- 	action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
-						-- 		-- },
-						-- 		-- {
-						-- 		-- 	icon = "󰒲 ",
-						-- 		-- 	key = "L",
-						-- 		-- 	desc = "Lazy",
-						-- 		-- 	action = ":Lazy",
-						-- 		-- 	enabled = package.loaded.lazy ~= nil,
-						-- 		-- },
-						-- 		-- {
-						-- 		-- 	icon = " ",
-						-- 		-- 	key = "q",
-						-- 		-- 	desc = "Quit",
-						-- 		-- 	action = ":qa",
-						-- 		-- },
-						-- 	},
-						-- },
 					},
 					preset = {
 						header = table.concat(ThisIsFine, "\n"),
-						keys = {
-							-- {
-							-- 	icon = " ",
-							-- 	key = "g",
-							-- 	desc = "Pull Requests",
-							-- 	action = function()
-							-- 		vim.fn.system("open https://github.com/pulls")
-							-- 	end,
-							-- },
-							-- {
-							-- 	icon = " ",
-							-- 	key = "r",
-							-- 	desc = "Recent Files",
-							-- 	action = ":lua Snacks.dashboard.pick('oldfiles')",
-							-- },
-							-- {
-							-- 	icon = " ",
-							-- 	key = "c",
-							-- 	desc = "Config",
-							-- 	action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
-							-- },
-							-- {
-							-- 	icon = " ",
-							-- 	key = "s",
-							-- 	desc = "Restore Session",
-							-- 	action = ":lua require('persistence').select()",
-							-- },
-							-- {
-							-- 	icon = "󰒲 ",
-							-- 	key = "L",
-							-- 	desc = "Lazy",
-							-- 	action = ":Lazy",
-							-- 	enabled = package.loaded.lazy ~= nil,
-							-- },
-							-- {
-							-- 	icon = " ",
-							-- 	key = "q",
-							-- 	desc = "Quit",
-							-- 	action = ":qa",
-							-- },
-						},
+						keys = {},
 					},
 				},
 				zen = { enabled = true },
