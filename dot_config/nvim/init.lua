@@ -157,7 +157,11 @@ vim.keymap.set("n", "<leader>bD", function()
 end, { desc = "[B]uffer [D]elete (force)" })
 vim.keymap.set("n", "<leader>bn", "<cmd>bnext<cr>", { desc = "[B]uffer [N]ext" })
 vim.keymap.set("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "[B]uffer [P]revious" })
-vim.keymap.set("n", "gb", "<cmd>BufferLinePick<cr>", { desc = "[B]uffer pick" })
+for i = 1, 9 do
+	vim.keymap.set("n", "<leader>" .. i, "<cmd>BufferLineGoToBuffer " .. i .. "<cr>", {
+		desc = "Go to buffer " .. i,
+	})
+end
 vim.keymap.set("n", "<leader>bl", "<cmd>BufferLineCloseLeft<cr>", { desc = "[B]uffer close all to the [L]eft" })
 vim.keymap.set("n", "<leader>br", "<cmd>BufferLineCloseRight<cr>", { desc = "[B]uffer close all to the [R]ight" })
 vim.keymap.set("n", "<leader>bo", "<cmd>BufferLineCloseOthers<cr>", { desc = "[B]uffer close all [O]thers" })
