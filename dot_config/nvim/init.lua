@@ -169,6 +169,11 @@ vim.keymap.set("n", "<leader>bh", "<cmd>BufferLineMovePrev<cr>", { desc = "[B]uf
 vim.keymap.set("n", "<leader>bl", "<cmd>BufferLineMoveNext<cr>", { desc = "[B]uffer move right ([L])" })
 vim.keymap.set("n", "<leader>bp", "<cmd>BufferLineTogglePin<cr>", { desc = "[B]uffer toggle [P]in" })
 
+-- Direct buffer access by ordinal position
+for i = 1, 9 do
+	vim.keymap.set("n", "<leader>" .. i, "<cmd>BufferLineGoToBuffer " .. i .. "<cr>", { desc = "Go to buffer " .. i })
+end
+
 -- File explorer
 vim.keymap.set("n", "<leader>e", "<cmd>Neotree toggle<cr>", { desc = "Toggle file [E]xplorer" })
 vim.keymap.set("n", "<leader>E", "<cmd>Neotree focus<cr>", { desc = "Focus file [E]xplorer" })
