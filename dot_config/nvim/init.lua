@@ -1539,8 +1539,26 @@ require("lazy").setup({
 		config = function()
 			local harpoon = require("harpoon")
 
-			-- REQUIRED - Setup harpoon
-			harpoon:setup()
+			-- REQUIRED - Setup harpoon with shared state across worktrees
+			harpoon:setup({
+				settings = {
+					save_on_toggle = true,
+					sync_on_ui_close = true,
+					key = function()
+						-- Use git repository root as the key so all worktrees share the same marks
+						local handle = io.popen("git rev-parse --show-toplevel 2>/dev/null")
+						if handle then
+							local result = handle:read("*a")
+							handle:close()
+							if result and result ~= "" then
+								return vim.trim(result)
+							end
+						end
+						-- Fallback to current working directory if not in a git repo
+						return vim.uv.cwd()
+					end,
+				},
+			})
 
 			-- Basic harpoon keymaps
 			vim.keymap.set("n", "<leader>a", function()

@@ -67,9 +67,6 @@ export EDITOR='nvim'
   source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 eval "$(starship init zsh)"
 
-# zoxide for easy `cd`ing
-eval "$(zoxide init --cmd cd zsh)"
-
 # Load in secrets if the file exists
 [[ -f ~/.secrets ]] && source ~/.secrets
 
@@ -159,3 +156,6 @@ wt() {
   # Restore hooks if still in function
   chpwd_functions=("${old_hooks[@]}")
 }
+
+# zoxide for easy `cd`ing (keep at end to avoid doctor warning)
+eval "$(zoxide init --cmd cd zsh)"
