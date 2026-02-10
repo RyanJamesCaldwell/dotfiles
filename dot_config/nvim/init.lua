@@ -169,6 +169,11 @@ vim.keymap.set("n", "<leader>bh", "<cmd>BufferLineMovePrev<cr>", { desc = "[B]uf
 vim.keymap.set("n", "<leader>bl", "<cmd>BufferLineMoveNext<cr>", { desc = "[B]uffer move right ([L])" })
 vim.keymap.set("n", "<leader>bp", "<cmd>BufferLineTogglePin<cr>", { desc = "[B]uffer toggle [P]in" })
 
+-- Direct buffer access by ordinal position
+for i = 1, 9 do
+	vim.keymap.set("n", "<leader>" .. i, "<cmd>BufferLineGoToBuffer " .. i .. "<cr>", { desc = "Go to buffer " .. i })
+end
+
 -- File explorer
 vim.keymap.set("n", "<leader>e", "<cmd>Neotree toggle<cr>", { desc = "Toggle file [E]xplorer" })
 vim.keymap.set("n", "<leader>E", "<cmd>Neotree focus<cr>", { desc = "Focus file [E]xplorer" })
@@ -1534,8 +1539,26 @@ require("lazy").setup({
 		config = function()
 			local harpoon = require("harpoon")
 
-			-- REQUIRED - Setup harpoon
-			harpoon:setup()
+			-- REQUIRED - Setup harpoon with shared state across worktrees
+			harpoon:setup({
+				settings = {
+					save_on_toggle = true,
+					sync_on_ui_close = true,
+					key = function()
+						-- Use git repository root as the key so all worktrees share the same marks
+						local handle = io.popen("git rev-parse --show-toplevel 2>/dev/null")
+						if handle then
+							local result = handle:read("*a")
+							handle:close()
+							if result and result ~= "" then
+								return vim.trim(result)
+							end
+						end
+						-- Fallback to current working directory if not in a git repo
+						return vim.uv.cwd()
+					end,
+				},
+			})
 
 			-- Basic harpoon keymaps
 			vim.keymap.set("n", "<leader>a", function()
