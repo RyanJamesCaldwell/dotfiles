@@ -12,7 +12,7 @@ The bootstrap script installs essential dependencies, runs `brew bundle`, and ap
 
 ## Highlights
 
-- **Shell**: Zsh with oh-my-zsh, fzf integration, starship prompt, and aliases tuned for git.
+- **Shell**: Zsh with oh-my-zsh, fzf integration, starship prompt, aliases tuned for git, and `wt` sourced from `~/.config/wt/wt.zsh`.
 - **Editor**: Kickstart-based Neovim setup with Stylua formatting and lazily-loaded plugins.
 - **Terminal**: WezTerm configuration for pane-focused workflows, rose-pine colors, and JetBrainsMono Nerd Font.
 - **Packages**: Brewfile defines CLI tools (asdf, gh, ripgrep, etc.) and GUI apps (WezTerm, ngrok, 1Password CLI).

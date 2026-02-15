@@ -70,92 +70,9 @@ eval "$(starship init zsh)"
 # Load in secrets if the file exists
 [[ -f ~/.secrets ]] && source ~/.secrets
 
-# Git Worktree Manager (Harpoon-style)
-wt() {
-  # Save git path and disable zoxide hooks
-  local git_cmd=$(which git)
-  local old_hooks=("${chpwd_functions[@]}")
-  chpwd_functions=()
-
-  if ! $git_cmd rev-parse --git-dir > /dev/null 2>&1; then
-    echo "Not in a git repository"
-    chpwd_functions=("${old_hooks[@]}")
-    return 1
-  fi
-
-  local repo_root=$($git_cmd rev-parse --show-toplevel)
-  local repo_name=$(basename "$repo_root")
-  local wt_base_dir="$(dirname "$repo_root")/${repo_name}-worktrees"
-
-  local result=$($git_cmd worktree list | fzf \
-    --header="[Enter: jump] [Ctrl-N: new] [Ctrl-D: delete]" \
-    --expect=ctrl-n,ctrl-d)
-
-  local key=$(echo "$result" | head -1)
-  local selection=$(echo "$result" | tail -1)
-
-  case "$key" in
-    ctrl-n)
-      # Create new worktree
-      read "branch?Branch name: "
-      if [[ -n "$branch" ]]; then
-        mkdir -p "$wt_base_dir"
-        if $git_cmd worktree add "$wt_base_dir/$branch" -b "$branch"; then
-          # Copy gitignored config files from the primary worktree root
-          local source_dir="$repo_root"
-          local new_wt_dir="$wt_base_dir/$branch"
-
-          setopt local_options null_glob
-
-          for file in "$source_dir"/.*(DN); do
-            local filename="${file:t}"
-
-            if [[ "$filename" == "." || "$filename" == ".." || "$filename" == ".git" ]]; then
-              continue
-            fi
-
-            if [[ -f "$file" || -L "$file" ]]; then
-              cp -p "$file" "$new_wt_dir/$filename"
-              echo "Copied $filename"
-            fi
-          done
-
-          builtin cd "$new_wt_dir"
-          chpwd_functions=("${old_hooks[@]}")
-          echo "Created and switched to worktree: $branch"
-        fi
-      fi
-      ;;
-    ctrl-d)
-      # Delete worktree
-      if [[ -n "$selection" ]]; then
-        local path=${selection%% *}
-        local branch=${selection##* }
-        if [[ "$path" != "$repo_root" ]]; then
-          echo "Delete worktree '$branch' at $path? (y/N)"
-          if read -q; then
-            echo ""
-            $git_cmd worktree remove "$path" && echo "Deleted worktree: $branch"
-          fi
-        else
-          echo "Cannot delete main worktree"
-        fi
-      fi
-      ;;
-    *)
-      # Jump to worktree
-      if [[ -n "$selection" ]]; then
-        local path=${selection%% *}
-        builtin cd "$path"
-        chpwd_functions=("${old_hooks[@]}")
-        echo "Switched to: $path"
-      fi
-      ;;
-  esac
-
-  # Restore hooks if still in function
-  chpwd_functions=("${old_hooks[@]}")
-}
+# Git Worktree Manager (managed via .chezmoiexternal.toml)
+WT_COPY_SENSITIVE_DOTFILES=1
+[[ -f "$HOME/.config/wt/wt.zsh" ]] && source "$HOME/.config/wt/wt.zsh"
 
 # zoxide for easy `cd`ing (keep at end to avoid doctor warning)
 eval "$(zoxide init --cmd cd zsh)"

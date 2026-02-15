@@ -1,0 +1,6 @@
+[".config/wt"]
+  type = "git-repo"
+  url = "https://github.com/RyanJamesCaldwell/wt.git"
+  refreshPeriod = "168h"
+  [".config/wt".pull]
+    args = ["--ff-only"]
