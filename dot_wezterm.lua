@@ -4,6 +4,62 @@ local wezterm = require("wezterm")
 -- This will hold the configuration.
 local config = wezterm.config_builder()
 
+-- ============================================================================
+-- DEV WORKSPACE LAUNCHER
+-- ============================================================================
+
+local function open_dev_workspace(window, pane)
+	local cwd = pane:get_current_working_dir()
+	local cwd_path = cwd and cwd.file_path or nil
+
+	-- Compute target pixel size from current cell dimensions
+	local dims = pane:get_dimensions()
+	local cur_cols = dims.cols
+	local cur_rows = dims.viewport_rows
+
+	-- Resize and center window via AppleScript (uses logical screen coordinates)
+	-- Ratio-based: targetSize = currentSize * (targetCells / currentCells)
+	wezterm.background_child_process({
+		"osascript",
+		"-e", string.format([[
+tell application "System Events"
+	tell process "WezTerm"
+		set {curW, curH} to size of front window
+		set targetW to round (curW * 238 / %d)
+		set targetH to round (curH * 64 / %d)
+		set size of front window to {targetW, targetH}
+	end tell
+end tell
+tell application "Finder"
+	set _bounds to bounds of window of desktop
+	set _sw to item 3 of _bounds
+	set _sh to item 4 of _bounds
+end tell
+tell application "System Events"
+	tell process "WezTerm"
+		set {_w, _h} to size of front window
+		set position of front window to {(_sw - _w) / 2, (_sh - _h) / 2}
+	end tell
+end tell]], cur_cols, cur_rows),
+	})
+
+	-- Spawn a new tab (becomes the left pane)
+	local tab, left_pane, _ = window:mux_window():spawn_tab({
+		cwd = cwd_path,
+	})
+
+	-- Split: left=82 cols, right=155 cols -> right gets 155/237 ≈ 65.4%
+	local right_pane = left_pane:split({
+		direction = "Right",
+		size = 0.654,
+		cwd = cwd_path,
+	})
+
+	-- Launch codex on the left, nvim on the right
+	left_pane:send_text("codex\n")
+	right_pane:send_text("nvim\n")
+end
+
 -- This is where you actually apply your config choices
 config.color_scheme = "rose-pine"
 config.font = wezterm.font("JetBrainsMono Nerd Font Mono")
@@ -22,6 +78,13 @@ config.window_padding = {
 -- ============================================================================
 
 config.keys = {
+	-- Dev Workspace: codex (left) + nvim (right)
+	{
+		key = "e",
+		mods = "CMD|SHIFT",
+		action = wezterm.action_callback(open_dev_workspace),
+	},
+
 	-- Pane Splitting
 	{
 		key = "d",
