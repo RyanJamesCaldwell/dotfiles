@@ -28,6 +28,7 @@ brew "postgresql@14", restart_service: :changed
 brew "python@3.10"
 brew "python@3.13"
 brew "ripgrep"
+brew "terminal-notifier"
 brew "zrok"
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
