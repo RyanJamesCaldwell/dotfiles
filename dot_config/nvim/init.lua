@@ -187,6 +187,9 @@ vim.keymap.set("t", "<C-/>", "<cmd>ToggleTerm<cr>", { desc = "Toggle terminal" }
 vim.keymap.set("v", "<", "<gv", { desc = "Unindent" })
 vim.keymap.set("v", ">", ">gv", { desc = "Indent" })
 
+-- Format JSON with jq
+vim.keymap.set("n", "<leader>jq", ":%!jq .<CR>", { desc = "Format [J]SON with [jq]" })
+
 -- Quit keymaps
 vim.keymap.set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "[Q]uit all" })
 vim.keymap.set("n", "<leader>qQ", "<cmd>qa!<cr>", { desc = "[Q]uit all (force)" })

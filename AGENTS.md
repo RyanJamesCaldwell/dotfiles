@@ -6,6 +6,24 @@
 - Reusable Lua logic is grouped under `dot_config/nvim/lua/kickstart/`, while personal overrides stay in `dot_config/nvim/lua/custom/plugins/init.lua` so they are easy to extend or disable.
 - Plugin state is pinned in `dot_config/nvim/lazy-lock.json`; update this file whenever plugin versions change to keep machines aligned.
 
+## Neovim Config Details (`dot_config/nvim/init.lua`)
+- This is a single large file (~68 KB) containing all options, keymaps, and plugin specs — **do not explore the file with broad searches; use targeted Grep for specific sections**.
+- Leader key is `<space>` (set at the top of `init.lua`).
+- All keymaps use `vim.keymap.set(...)` and are organized by labeled comment sections in this order:
+  - Basic mappings (`<Esc>` clears search, diagnostic quickfix)
+  - Window splits (`<leader>-`, `<leader>|`)
+  - Terminal mode escape
+  - Window focus (`<C-h/j/k/l>`)
+  - Buffer management (`<leader>b*`) — uses BufferLine
+  - File explorer (`<leader>e/E`) — uses Neo-tree
+  - Terminal (`<leader>ft`, `<C-/>`) — uses ToggleTerm
+  - Better indenting (`<`/`>` in visual mode stay in visual mode)
+  - JSON formatting (`<leader>jq` runs `:%!jq .`)
+  - Quit (`<leader>q*`)
+  - Git changed files helper (`<leader>gf`)
+- To add a new keymap, append it to the appropriate labeled section in `init.lua`. No separate keymaps file exists.
+- Custom plugins file (`lua/custom/plugins/init.lua`) is the right place for new plugin specs; kickstart plugins under `lua/kickstart/plugins/` should not be modified unless overriding upstream defaults.
+
 ## Build, Test, and Development Commands
 - `chezmoi diff` — inspect pending template changes before applying them to your home directory.
 - `chezmoi apply` — render the templates into place after you are satisfied with the diff.
