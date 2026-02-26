@@ -1203,7 +1203,88 @@ require("lazy").setup({
 		"rose-pine/neovim",
 		name = "rose-pine",
 		config = function()
-			vim.cmd("colorscheme rose-pine-moon")
+			local valid_themes = {
+				sakura_night = true,
+				ashfall = true,
+				rosepine = true,
+			}
+			local theme_state_file = vim.fn.expand("~/.config/theme/current")
+
+			local function save_theme(theme)
+				local dir = vim.fn.fnamemodify(theme_state_file, ":h")
+				pcall(vim.fn.mkdir, dir, "p")
+				pcall(vim.fn.writefile, { theme }, theme_state_file)
+			end
+
+			local function apply_theme(theme)
+				if theme == "ashfall" then
+					require("custom.ashfall").setup()
+					vim.g.active_theme = "ashfall"
+					save_theme("ashfall")
+					return
+				end
+
+				if theme == "sakura_night" then
+					require("custom.sakura_night").setup()
+					vim.g.active_theme = "sakura_night"
+					save_theme("sakura_night")
+					return
+				end
+
+				vim.cmd("colorscheme rose-pine-moon")
+				vim.g.active_theme = "rosepine"
+				save_theme("rosepine")
+			end
+
+			-- Startup order: explicit g var -> NVIM_THEME env -> persisted state file -> fallback.
+			local startup_theme = vim.g.active_theme
+			if not startup_theme then
+				local env_theme = vim.env.NVIM_THEME
+				if env_theme and valid_themes[env_theme] then
+					startup_theme = env_theme
+				end
+			end
+			if not startup_theme and vim.fn.filereadable(theme_state_file) == 1 then
+				local saved = vim.fn.readfile(theme_state_file)
+				local from_file = saved[1]
+				if from_file and valid_themes[from_file] then
+					startup_theme = from_file
+				end
+			end
+			vim.g.active_theme = startup_theme or "sakura_night"
+			apply_theme(vim.g.active_theme)
+
+			vim.api.nvim_create_user_command("ThemeSet", function(opts)
+				local theme = opts.args
+				if theme ~= "ashfall" and theme ~= "rosepine" and theme ~= "sakura_night" then
+					vim.notify('Theme must be "ashfall", "sakura_night", or "rosepine"', vim.log.levels.ERROR)
+					return
+				end
+				apply_theme(theme)
+				vim.notify("Theme set to " .. theme, vim.log.levels.INFO)
+			end, {
+				nargs = 1,
+				complete = function()
+					return { "sakura_night", "ashfall", "rosepine" }
+				end,
+				desc = "Set colorscheme (sakura_night|ashfall|rosepine)",
+			})
+
+			vim.api.nvim_create_user_command("ThemeToggle", function()
+				local order = { "sakura_night", "ashfall", "rosepine" }
+				local current = vim.g.active_theme or order[1]
+				local next_theme = order[1]
+
+				for i, item in ipairs(order) do
+					if item == current then
+						next_theme = order[(i % #order) + 1]
+						break
+					end
+				end
+
+				apply_theme(next_theme)
+				vim.notify("Theme set to " .. next_theme, vim.log.levels.INFO)
+			end, { desc = "Cycle colorscheme (sakura_night|ashfall|rosepine)" })
 		end,
 	},
 	{

@@ -36,6 +36,76 @@ export PATH="$HOME/go/bin:$PATH"
 set -o vi
 tabs -2
 
+# Shared theme selection for terminal + Neovim.
+THEME_STATE_DIR="$HOME/.config/theme"
+THEME_STATE_FILE="$THEME_STATE_DIR/current"
+STARSHIP_THEME_DIR="$HOME/.config/starship/themes"
+if [[ -r "$THEME_STATE_FILE" ]]; then
+  export NVIM_THEME="$(<"$THEME_STATE_FILE")"
+else
+  export NVIM_THEME="sakura_night"
+fi
+
+_set_starship_config_for_theme() {
+  local theme_name="$1"
+  local config_path
+  case "$theme_name" in
+    sakura_night) config_path="$STARSHIP_THEME_DIR/sakura_night.toml" ;;
+    ashfall) config_path="$STARSHIP_THEME_DIR/ashfall.toml" ;;
+    rosepine) config_path="$STARSHIP_THEME_DIR/rosepine.toml" ;;
+    *) config_path="$HOME/.config/starship.toml" ;;
+  esac
+
+  if [[ -r "$config_path" ]]; then
+    export STARSHIP_CONFIG="$config_path"
+  else
+    export STARSHIP_CONFIG="$HOME/.config/starship.toml"
+  fi
+}
+
+_set_starship_config_for_theme "$NVIM_THEME"
+
+_sync_theme_from_state() {
+  [[ -r "$THEME_STATE_FILE" ]] || return 0
+  local saved
+  saved="$(<"$THEME_STATE_FILE")"
+  case "$saved" in
+    sakura_night|ashfall|rosepine)
+      if [[ "$saved" != "$NVIM_THEME" ]]; then
+        export NVIM_THEME="$saved"
+        _set_starship_config_for_theme "$NVIM_THEME"
+      fi
+      ;;
+  esac
+}
+
+theme() {
+  local next="$1"
+  if [[ -z "$next" ]]; then
+    echo "Current theme: $NVIM_THEME"
+    echo "Usage: theme <sakura_night|ashfall|rosepine>"
+    return 0
+  fi
+
+  case "$next" in
+    sakura_night|ashfall|rosepine) ;;
+    *)
+      echo "Invalid theme: $next"
+      echo "Valid themes: sakura_night ashfall rosepine"
+      return 1
+      ;;
+  esac
+
+  export NVIM_THEME="$next"
+  _set_starship_config_for_theme "$NVIM_THEME"
+  mkdir -p "$THEME_STATE_DIR"
+  printf '%s\n' "$next" > "$THEME_STATE_FILE"
+  echo "Theme set to $next"
+}
+
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd _sync_theme_from_state
+
 # Aliases
 alias la='eza --long --all --git --no-user --icons=auto'
 alias l='eza --long --git --no-user --icons=auto'

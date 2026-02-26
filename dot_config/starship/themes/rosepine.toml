@@ -1,0 +1,68 @@
+# Starship prompt palette: rosepine (moon-inspired)
+add_newline = true
+command_timeout = 1000
+
+format = "$directory$git_branch$custom_chezmoi$git_metrics$time$line_break$character"
+
+[character]
+success_symbol = "[>](#9ccfd8) "
+error_symbol = "[>](#eb6f92) "
+vimcmd_symbol = "[<](#c4a7e7) "
+
+[directory]
+style = "bold #e0def4"
+truncation_length = 3
+truncation_symbol = ".../"
+
+[git_branch]
+symbol = "git:"
+format = "[$symbol$branch]($style) "
+style = "bold #c4a7e7"
+
+[git_metrics]
+disabled = false
+only_nonzero_diffs = true
+added_style = "bold #9ccfd8"
+deleted_style = "bold #eb6f92"
+format = "([+$added]($added_style) )([-$deleted]($deleted_style) )"
+
+[custom.chezmoi]
+command = "printf 'chezmoi'"
+when = "test \"$PWD\" = \"$HOME/.local/share/chezmoi\""
+format = "[$output]($style) "
+style = "bold dimmed #ea9a97"
+
+[golang]
+symbol = "go:"
+format = "[$symbol$version]($style) "
+style = "bold #9ccfd8"
+
+[nodejs]
+symbol = "node:"
+format = "[$symbol$version]($style) "
+style = "bold #3e8fb0"
+
+[python]
+symbol = "py:"
+format = "[$symbol$version]($style) "
+style = "bold #f6c177"
+
+[package]
+symbol = "pkg:"
+display_private = true
+format = "[$symbol$version]($style) "
+style = "bold dimmed #908caa"
+
+[azure]
+format = "[azure:$subscription]($style) "
+style = "bold dimmed #9ccfd8"
+
+[aws]
+format = "[aws:$profile]($style) "
+style = "bold dimmed #f6c177"
+
+[time]
+disabled = false
+format = "[$time]($style) "
+style = "dimmed #e0def4"
+time_format = "%H:%M:%S"
