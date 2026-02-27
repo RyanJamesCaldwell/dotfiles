@@ -1,0 +1,4 @@
+interface:
+  display_name: "Image to Nvim Theme"
+  short_description: "Build Neovim themes from image palettes"
+  default_prompt: "Create a Neovim colorscheme from an image, ask light/dark/both preference, implement Lua theme module(s), and wire switching commands."
