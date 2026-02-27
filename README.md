@@ -17,6 +17,24 @@ The bootstrap script installs essential dependencies, runs `brew bundle`, and ap
 - **Terminal**: WezTerm configuration for pane-focused workflows, rose-pine colors, and JetBrainsMono Nerd Font.
 - **Packages**: Brewfile defines CLI tools (asdf, gh, ripgrep, etc.) and GUI apps (WezTerm, ngrok, 1Password CLI).
 
+## Theming
+
+Theme selection is shared across Zsh/Starship, Neovim, and WezTerm through `~/.config/theme/current`.
+
+- **Available themes**: `sakura_night` (default), `ashfall`, `rosepine`
+- **From shell**: run `theme <sakura_night|ashfall|rosepine>`
+- **From Neovim**:
+  - `:ThemeSet <sakura_night|ashfall|rosepine>`
+  - `:ThemeToggle` (cycles through all themes)
+- **From WezTerm**: reads `~/.config/theme/current` and applies the matching scheme automatically (`sakura_night`, `ashfall`, or `rose-pine` for `rosepine`)
+
+Theme files live in:
+
+- `dot_config/starship/themes/` for Starship
+- `dot_config/nvim/lua/custom/` for custom Neovim palettes
+- `dot_wezterm.lua` for WezTerm theme mappings and tab bar styling
+If WezTerm is already open, it picks up theme changes automatically (status refresh interval is ~1s).
+
 ## Updating Configs
 
 1. Edit files under this repo (e.g., `dot_zshrc`, `dot_config/nvim/init.lua`).

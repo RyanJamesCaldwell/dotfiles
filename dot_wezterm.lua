@@ -3,6 +3,108 @@ local wezterm = require("wezterm")
 
 -- This will hold the configuration.
 local config = wezterm.config_builder()
+local theme_state_file = wezterm.home_dir .. "/.config/theme/current"
+local default_theme = "sakura_night"
+
+local custom_color_schemes = {
+	sakura_night = {
+		foreground = "#f7e9f3",
+		background = "#0b1020",
+		cursor_bg = "#f3b0cc",
+		cursor_fg = "#0b1020",
+		cursor_border = "#f3b0cc",
+		selection_fg = "#f7e9f3",
+		selection_bg = "#1a2740",
+		ansi = { "#0b1020", "#d873a4", "#a3c8ea", "#e98db7", "#7fadd8", "#b7a5de", "#a3c8ea", "#ddcddd" },
+		brights = { "#324267", "#c15b90", "#a3c8ea", "#e98db7", "#7fadd8", "#b7a5de", "#a3c8ea", "#f7e9f3" },
+	},
+	ashfall = {
+		foreground = "#fbedbd",
+		background = "#0c0e14",
+		cursor_bg = "#d34e37",
+		cursor_fg = "#0c0e14",
+		cursor_border = "#d34e37",
+		selection_fg = "#fbedbd",
+		selection_bg = "#252d35",
+		ansi = { "#0c0e14", "#ed4e35", "#90aea0", "#c14736", "#688581", "#954337", "#90aea0", "#d1d3b2" },
+		brights = { "#2a343d", "#d34e37", "#90aea0", "#c14736", "#688581", "#954337", "#90aea0", "#fbedbd" },
+	},
+}
+
+local theme_spec = {
+	sakura_night = {
+		color_scheme = "sakura_night",
+		tab_bar = {
+			background = "#0b1020",
+			active_tab = { bg_color = "#e98db7", fg_color = "#0b1020", intensity = "Bold" },
+			inactive_tab = { bg_color = "#111a2d", fg_color = "#6f81a8" },
+			inactive_tab_hover = { bg_color = "#243456", fg_color = "#f7e9f3", italic = true },
+			new_tab = { bg_color = "#0b1020", fg_color = "#6f81a8" },
+			new_tab_hover = { bg_color = "#243456", fg_color = "#a3c8ea" },
+		},
+	},
+	ashfall = {
+		color_scheme = "ashfall",
+		tab_bar = {
+			background = "#0c0e14",
+			active_tab = { bg_color = "#90aea0", fg_color = "#0c0e14", intensity = "Bold" },
+			inactive_tab = { bg_color = "#141a20", fg_color = "#665855" },
+			inactive_tab_hover = { bg_color = "#252d35", fg_color = "#fbedbd", italic = true },
+			new_tab = { bg_color = "#0c0e14", fg_color = "#665855" },
+			new_tab_hover = { bg_color = "#252d35", fg_color = "#ed4e35" },
+		},
+	},
+	rosepine = {
+		color_scheme = "rose-pine",
+		tab_bar = {
+			background = "#191724",
+			active_tab = { bg_color = "#eb6f92", fg_color = "#191724", intensity = "Bold" },
+			inactive_tab = { bg_color = "#26233a", fg_color = "#6e6a86" },
+			inactive_tab_hover = { bg_color = "#393552", fg_color = "#e0def4", italic = true },
+			new_tab = { bg_color = "#191724", fg_color = "#6e6a86" },
+			new_tab_hover = { bg_color = "#393552", fg_color = "#f6c177" },
+		},
+	},
+}
+
+local function normalize_theme_name(theme_name)
+	if theme_spec[theme_name] then
+		return theme_name
+	end
+	return default_theme
+end
+
+local function read_active_theme()
+	local file = io.open(theme_state_file, "r")
+	if not file then
+		return default_theme
+	end
+
+	local raw = file:read("*l")
+	file:close()
+	if not raw then
+		return default_theme
+	end
+
+	local trimmed = raw:match("^%s*(.-)%s*$")
+	return normalize_theme_name(trimmed)
+end
+
+local function theme_overrides_for(theme_name)
+	local normalized = normalize_theme_name(theme_name)
+	local spec = theme_spec[normalized]
+
+	return {
+		color_scheme = spec.color_scheme,
+		colors = {
+			tab_bar = spec.tab_bar,
+		},
+	}
+end
+
+local initial_theme = read_active_theme()
+local initial_overrides = theme_overrides_for(initial_theme)
+local last_theme_by_window = {}
 
 -- ============================================================================
 -- DEV WORKSPACE LAUNCHER
@@ -61,11 +163,13 @@ end tell]], cur_cols, cur_rows),
 end
 
 -- This is where you actually apply your config choices
-config.color_scheme = "rose-pine"
+config.color_schemes = custom_color_schemes
+config.color_scheme = initial_overrides.color_scheme
 config.font = wezterm.font("JetBrainsMono Nerd Font Mono")
 config.font_size = 16
 config.scrollback_lines = 10000
 config.window_decorations = "RESIZE"
+config.status_update_interval = 1000
 config.window_padding = {
 	left = 4,
 	right = 0,
@@ -238,33 +342,7 @@ config.hide_tab_bar_if_only_one_tab = true
 config.tab_max_width = 32
 
 -- Tab bar styling
-config.colors = {
-	tab_bar = {
-		background = "#191724",
-		active_tab = {
-			bg_color = "#eb6f92",
-			fg_color = "#191724",
-			intensity = "Bold",
-		},
-		inactive_tab = {
-			bg_color = "#26233a",
-			fg_color = "#6e6a86",
-		},
-		inactive_tab_hover = {
-			bg_color = "#393552",
-			fg_color = "#e0def4",
-			italic = true,
-		},
-		new_tab = {
-			bg_color = "#191724",
-			fg_color = "#6e6a86",
-		},
-		new_tab_hover = {
-			bg_color = "#393552",
-			fg_color = "#f6c177",
-		},
-	},
-}
+config.colors = initial_overrides.colors
 
 -- Smart tab naming based on current directory
 wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_width)
@@ -282,6 +360,17 @@ wezterm.on("format-tab-title", function(tab, tabs, panes, config, hover, max_wid
 	return {
 		{ Text = separator .. " " .. tab.tab_index + 1 .. ": " .. title .. " " },
 	}
+end)
+
+wezterm.on("update-status", function(window)
+	local theme = read_active_theme()
+	local window_id = window:window_id()
+	if last_theme_by_window[window_id] == theme then
+		return
+	end
+
+	last_theme_by_window[window_id] = theme
+	window:set_config_overrides(theme_overrides_for(theme))
 end)
 
 -- and finally, return the configuration to wezterm
