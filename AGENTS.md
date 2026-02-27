@@ -36,9 +36,15 @@
 - For shell snippets in dotfiles, align indentation with two spaces and avoid trailing whitespace to prevent noisy diffs on target systems.
 
 ## Testing Guidelines
+- Before running runtime checks for managed dotfiles, confirm whether `chezmoi apply` has been run; if not, label runtime output as stale-home-config and treat static repo checks as authoritative.
 - After changing Neovim plugins or settings, run `nvim --headless "+checkhealth" +qa` on a clean terminal to surface runtime or dependency issues.
+- After changing `dot_zshrc`/`dot_zshrc.tmpl`, include a reload step in validation instructions (`source ~/.zshrc` or `exec zsh`) before testing shell functions.
 - Use `chezmoi doctor` when introducing new templates to confirm managed paths resolve correctly across hosts.
 - If you touch the Brewfile, execute `brew bundle check --file Brewfile` to verify taps and packages are installable.
+
+## Agent Workflow
+- When a task explicitly invokes a skill, read that skill's required-input checklist and collect any missing required inputs before making edits.
+- For `image-to-nvim-theme`, confirm all required inputs up front: mode (`light|dark|both`), module token, and whether to set it as default now.
 
 ## Commit & Pull Request Guidelines
 - Prefer short, imperative commit subjects under 60 characters (e.g., `Refine treesitter defaults`); add focused body notes only when extra context is required.
