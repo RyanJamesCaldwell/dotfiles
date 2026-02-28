@@ -871,7 +871,6 @@ require("lazy").setup({
 				-- ts_ls = {},
 				--
 
-				gopls = {},
 				ruby_lsp = {},
 				lua_ls = {
 					-- cmd = { ... },
@@ -926,7 +925,7 @@ require("lazy").setup({
 				},
 			})
 
-			vim.lsp.enable({ "lua_ls", "gopls", "ruby_lsp" })
+			vim.lsp.enable({ "lua_ls", "ruby_lsp" })
 		end,
 	},
 
@@ -950,7 +949,7 @@ require("lazy").setup({
 				-- Disable "format_on_save lsp_fallback" for languages that don't
 				-- have a well standardized coding style. You can add additional
 				-- languages here or re-enable it for the disabled ones.
-				local disable_filetypes = { c = true, cpp = true }
+				local disable_filetypes = { c = true, cpp = true, go = true, gomod = true, gowork = true }
 				if disable_filetypes[vim.bo[bufnr].filetype] then
 					return nil
 				else
@@ -1328,7 +1327,7 @@ require("lazy").setup({
 			}
 
 			require("go").setup(opts)
-			local format_sync_grp = vim.api.nvim_create_augroup("GoFormat", {})
+			local format_sync_grp = vim.api.nvim_create_augroup("GoFormat", { clear = true })
 			vim.api.nvim_create_autocmd("BufWritePre", {
 				pattern = "*.go",
 				callback = function()
