@@ -30,8 +30,18 @@ elif command -v brew >/dev/null 2>&1; then
   unset ASDF_PREFIX
 fi
 
-export PATH="/opt/homebrew/bin:/opt/homebrew/opt/curl/bin:$HOME/.local/bin:$PATH"
-export PATH="$HOME/go/bin:$PATH"
+export PNPM_HOME="$HOME/Library/pnpm/pnpm"
+typeset -U path PATH
+path=(
+  $PNPM_HOME
+  /opt/homebrew/bin
+  /opt/homebrew/opt/curl/bin
+  $HOME/.local/bin
+  $HOME/go/bin
+  $HOME/.bun/bin
+  $path
+)
+export PATH
 
 set -o vi
 tabs -2
@@ -121,14 +131,6 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 [[ -s "$HOME/.local/bin/env" ]] && source "$HOME/.local/bin/env"
-
-# pnpm
-export PNPM_HOME="/Users/ryancaldwell/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
 
 export EDITOR='nvim'
 [[ -s /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
