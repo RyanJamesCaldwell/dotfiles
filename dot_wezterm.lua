@@ -157,8 +157,8 @@ end tell]], cur_cols, cur_rows),
 		cwd = cwd_path,
 	})
 
-	-- Launch codex on the left, nvim on the right
-	left_pane:send_text("codex\n")
+	-- Launch copilot on the left, nvim on the right
+	left_pane:send_text("copilot --yolo\n")
 	right_pane:send_text("nvim\n")
 end
 
