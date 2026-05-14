@@ -89,7 +89,8 @@ vim.o.scrolloff = 10
 -- instead raise a dialog asking if you wish to save the current file(s)
 -- See `:help 'confirm'`
 vim.o.confirm = true
-vim.o.wrap = false -- don't wrap lines
+vim.o.wrap = true
+vim.o.linebreak = true
 vim.o.swapfile = false -- No swap files
 vim.o.backup = false -- No backup files
 
