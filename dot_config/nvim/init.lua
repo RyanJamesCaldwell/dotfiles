@@ -305,21 +305,20 @@ _...--. |  ,       \ \             ,.    `-._     ,  /: '  '  '  ' ' ;;..._
 ]],
 }
 
-ThisIsFine = {
-	[[
-                                                                                               
-@@@@@@@  @@@  @@@  @@@   @@@@@@      @@@   @@@@@@      @@@@@@@@  @@@  @@@  @@@  @@@@@@@@       
-@@@@@@@  @@@  @@@  @@@  @@@@@@@      @@@  @@@@@@@      @@@@@@@@  @@@  @@@@ @@@  @@@@@@@@       
-  @@!    @@!  @@@  @@!  !@@          @@!  !@@          @@!       @@!  @@!@!@@@  @@!            
-  !@!    !@!  @!@  !@!  !@!          !@!  !@!          !@!       !@!  !@!!@!@!  !@!            
-  @!!    @!@!@!@!  !!@  !!@@!!       !!@  !!@@!!       @!!!:!    !!@  @!@ !!@!  @!!!:!         
-  !!!    !!!@!!!!  !!!   !!@!!!      !!!   !!@!!!      !!!!!:    !!!  !@!  !!!  !!!!!:         
-  !!:    !!:  !!!  !!:       !:!     !!:       !:!     !!:       !!:  !!:  !!!  !!:            
-  :!:    :!:  !:!  :!:      !:!      :!:      !:!      :!:       :!:  :!:  !:!  :!:       :!:  
-   ::    ::   :::   ::  :::: ::       ::  :::: ::       ::        ::   ::   ::   :: ::::  :::  
-   :      :   : :  :    :: : :       :    :: : :        :        :    ::    :   : :: ::   :::  
-                                                                                               
-]],
+MountainScene = {
+	[[                                                                     ]],
+	[[                 ░░░░░░░                                             ]],
+	[[               ░░░░░░░░░░░                                          ]],
+	[[             ░░░░░░▓▓░░░░░░░                          ░░░           ]],
+	[[           ░░░░░░▓▓▓▓▓▓░░░░░░                      ░░░░░░░         ]],
+	[[         ░░░░░░▓▓▓▓▓▓▓▓▓▓░░░░░░                  ░░░░░▓░░░░░      ]],
+	[[       ░░░░░▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░              ░░░░▓▓▓▓▓░░░░░    ]],
+	[[     ░░░░▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░          ░░░▓▓▓▓▓▓▓▓▓░░░░░  ]],
+	[[   ░░░▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░      ░░▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░ ]],
+	[[ ░░▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ ]],
+	[[▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ ]],
+	[[▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒ ]],
+	[[░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ ]],
 }
 
 Hydra = {
@@ -1364,76 +1363,62 @@ require("lazy").setup({
 				end,
 			})
 			require("snacks").setup({
-				dashboard = {
-					enabled = true,
-					sections = {
-						{
-							section = "terminal",
-							cmd = "chafa ~/.config/nvim/assets/thisisfine.jpg --format symbols --symbols vhalf --size 60x17 --stretch; sleep .1",
-							height = 17,
-							padding = 1,
-						},
-						{
-							pane = 2,
-							{
-								icon = " ",
-								section = "terminal",
-								enabled = function()
-									return Snacks.git.get_root() ~= nil
-								end,
-								cmd = 'git status --porcelain -b && echo "" && git --no-pager diff --stat',
-								-- cmd = "git status --short --branch --renames",
-								height = 10,
-								padding = 1,
-								indent = 2,
-							},
-							{
-								icon = " ",
-								key = "g",
-								desc = "Pull Requests",
-								action = function()
-									local root = Snacks.git.get_root()
-									if not root then
-										vim.notify("No git root found for pull requests.", vim.log.levels.WARN)
-										return
-									end
-
-									local remote =
-										vim.fn.systemlist({ "git", "-C", root, "remote", "get-url", "origin" })
-									if vim.v.shell_error ~= 0 or #remote == 0 then
-										vim.notify("No origin remote found for pull requests.", vim.log.levels.WARN)
-										return
-									end
-
-									local url = remote[1]:gsub("%.git$", "")
-									url = url:gsub("^git@([^:]+):", "https://%1/")
-									url = url:gsub("^ssh://git@([^/]+)/", "https://%1/")
-
-									vim.fn.system({ "open", url .. "/pulls" })
-								end,
-							},
-							-- {
-							-- 	section = "recent_files",
-							-- 	icon = " ",
-							-- 	key = "r",
-							-- 	desc = "Recent Files",
-							-- 	action = ":lua Snacks.dashboard.sections.recentfiles({cwd = true})",
-							-- },
-							{
-								icon = " ",
-								key = "s",
-								desc = "Restore Session",
-								action = ":lua require('persistence').select()",
-							},
-						},
-					},
-					preset = {
-						header = table.concat(ThisIsFine, "\n"),
-						keys = {},
-					},
-				},
-				zen = { enabled = true },
-			})
+dashboard = {
+enabled = true,
+sections = {
+{ section = "header" },
+{
+icon = " ",
+title = "Recent Commits",
+section = "terminal",
+enabled = function()
+return Snacks.git.get_root() ~= nil
+end,
+cmd = "git --no-pager log --oneline --graph --decorate --color=always -8",
+height = 10,
+padding = 1,
+indent = 2,
+},
+{ section = "keys", gap = 1, padding = 1 },
+},
+preset = {
+header = table.concat(MountainScene, "\n"),
+keys = {
+{
+icon = " ",
+key = "w",
+desc = "New Worktree",
+action = ":terminal",
+},
+{
+icon = " ",
+key = "s",
+desc = "Restore Session",
+action = ":lua require('persistence').select()",
+},
+{
+icon = " ",
+key = "f",
+desc = "Find File",
+action = ":lua Snacks.dashboard.pick('files')",
+},
+{
+icon = " ",
+key = "/",
+desc = "Live Grep",
+action = ":lua Snacks.dashboard.pick('live_grep')",
+},
+{
+icon = " ",
+key = "q",
+desc = "Quit",
+action = ":qa",
+},
+},
+},
+},
+zen = { enabled = true },
+})
 		end,
 		keys = {
 			{
