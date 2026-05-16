@@ -12,7 +12,7 @@ The bootstrap script installs essential dependencies, runs `brew bundle`, and ap
 
 ## Highlights
 
-- **Shell**: Zsh with oh-my-zsh, fzf integration, starship prompt, aliases tuned for git, and `wt` sourced from `~/.config/wt/wt.zsh`.
+- **Shell**: Zsh with oh-my-zsh, fzf integration, starship prompt, lazy nvm/asdf loading, aliases tuned for git, and `wt` sourced from `~/.config/wt/wt.zsh`.
 - **Editor**: Kickstart-based Neovim setup with Stylua formatting and lazily-loaded plugins.
 - **Terminal**: WezTerm configuration for pane-focused workflows, rose-pine colors, and JetBrainsMono Nerd Font.
 - **Packages**: Brewfile defines CLI tools (asdf, gh, ripgrep, etc.) and GUI apps (WezTerm, ngrok, 1Password CLI).
@@ -22,7 +22,11 @@ The bootstrap script installs essential dependencies, runs `brew bundle`, and ap
 Theme selection is shared across Zsh/Starship, Neovim, and WezTerm through `~/.config/theme/current`.
 
 - **Available themes**: `sakura_night` (default), `ashfall`, `rosepine`
-- **From shell**: run `theme <sakura_night|ashfall|rosepine>`
+- **From shell**:
+  - `theme` or `theme current` shows the active theme
+  - `theme list` shows valid themes
+  - `theme pick` opens an fzf picker when available, with a numbered fallback
+  - `theme <sakura_night|ashfall|rosepine>` applies a theme directly
 - **From Neovim**:
   - `:ThemeSet <sakura_night|ashfall|rosepine>`
   - `:ThemeToggle` (cycles through all themes)
@@ -47,7 +51,13 @@ Use `chezmoi diff` to inspect changes before applying, and `chezmoi doctor` to v
 
 - Drop `work` or `personal` into `~/.chezmoi_profile` (not tracked in git) to pick the active configuration; the default remains `personal` when the file is absent.
 - Chezmoi exposes the selection to templates as `.profile`, which currently feeds into `CHEZMOI_PROFILE` and optional overrides sourced from `~/.zshrc.<profile>`.
-- After toggling profiles, rerun `chezmoi apply` (and optionally `chezmoi diff`) to materialize the right variant.
+- Use `profile current`, `profile list`, `profile pick`, or `profile <personal|work>` from Zsh to inspect or switch profiles.
+- The `profile` helper writes `~/.chezmoi_profile`, updates `CHEZMOI_PROFILE` in the current shell, runs `chezmoi apply` when available, and sends a terminal notification when possible.
+
+## Shell Startup
+
+- nvm and asdf are lazy-loaded to keep startup fast while preserving shims and command behavior.
+- Run `zsh-startup-profile` to launch a one-shot profiled shell and print `zprof` output without adding overhead to normal startup.
 
 ## License
 
