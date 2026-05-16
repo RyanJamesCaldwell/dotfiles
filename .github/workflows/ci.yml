@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install validation tools
         run: brew install chezmoi stylua neovim
@@ -54,8 +56,17 @@ jobs:
 
       - name: Check Lua formatting
         run: |
-          find dot_config/nvim -name '*.lua' -print0 \
-            | xargs -0 stylua --check --config-path dot_config/nvim/dot_stylua.toml
+          set -euo pipefail
+          base_branch="${GITHUB_BASE_REF:-main}"
+          git fetch --no-tags origin "$base_branch"
+          base="$(git merge-base "origin/$base_branch" HEAD)"
+          changed_lua="$(mktemp)"
+          git diff --name-only -z --diff-filter=ACMR "$base" HEAD -- 'dot_config/nvim/**/*.lua' > "$changed_lua"
+          if [[ ! -s "$changed_lua" ]]; then
+            echo "No changed Lua files to format-check."
+            exit 0
+          fi
+          xargs -0 stylua --check --config-path dot_config/nvim/dot_stylua.toml < "$changed_lua"
 
       - name: Cache Neovim plugins
         uses: actions/cache@v4
