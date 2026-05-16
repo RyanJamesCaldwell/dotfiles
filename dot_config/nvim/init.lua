@@ -305,24 +305,6 @@ _...--. |  ,       \ \             ,.    `-._     ,  /: '  '  '  ' ' ;;..._
 ]],
 }
 
-MountainScene = {
-	[[                                          .        .        .              ]],
-	[[                        .         .   *        *         .          .      ]],
-	[[              .    *         .                      .        *             ]],
-	[[       *                 .        .    *      .                  .         ]],
-	[[                  .                                     .                  ]],
-	[[           .              /\       *          /\                 *         ]],
-	[[      .            *     /  \    .           /  \                          ]],
-	[[                        / /\ \       .      /    \       .       .         ]],
-	[[            .          / /  \ \            _/ /\ _\                        ]],
-	[[     *         .      / /    \ \    *     /  /  \  \  .       *            ]],
-	[[                     / /  /\  \ \       _/ _/    \_ \_          .          ]],
-	[[         .     .    /_/  /  \  \_\     /  /   /\  \  \   .                ]],
-	[[   .               /   /    \   \    /  /   /  \  \  \          .         ]],
-	[[           .       /  / /  \ \  \  _/  /   /    \  \_ \                   ]],
-	[[  ───────────────────────────────────────────────────────────────────────  ]],
-	[[  ░░▒▒▓▓████████▓▓▒▒░░    ░░▒▒▓▓██████▓▓▒▒░░    ░░▒▒▓▓████▓▓▒▒░░░░░░  ]],
-}
 
 Hydra = {
 	[[   ⣴⣶⣤⡤⠦⣤⣀⣤⠆     ⣈⣭⣿⣶⣿⣦⣼⣆          ]],
@@ -1370,60 +1352,43 @@ dashboard = {
 enabled = true,
 sections = {
 {
-section = "header",
-padding = 1,
+section = "terminal",
+cmd = 'printf "\n  %s  ·  %s\n" "$(basename "$(git rev-parse --show-toplevel 2>/dev/null || echo nvim)")" "$(git branch --show-current 2>/dev/null || echo "")"',
+height = 3,
+padding = 0,
+indent = 0,
 },
 {
 icon = " ",
-title = "Recent Commits",
+title = "My Issues",
 section = "terminal",
 enabled = function()
 return Snacks.git.get_root() ~= nil
 end,
-cmd = "git --no-pager log --oneline --graph --decorate --color=always -8",
+cmd = "gh issue list --assignee @me --limit 8 2>/dev/null || echo '  No issues'",
 height = 10,
 padding = 1,
 indent = 2,
 },
 {
 pane = 2,
-{ section = "keys", gap = 1, padding = 1 },
+{
+icon = " ",
+title = "Open PRs",
+section = "terminal",
+enabled = function()
+return Snacks.git.get_root() ~= nil
+end,
+cmd = "gh pr list --limit 8 2>/dev/null || echo '  No PRs'",
+height = 10,
+padding = 1,
+indent = 2,
+},
 },
 },
 preset = {
-header = table.concat(MountainScene, "\n"),
-keys = {
-{
-icon = " ",
-key = "w",
-desc = "New Worktree",
-action = ":terminal",
-},
-{
-icon = " ",
-key = "s",
-desc = "Restore Session",
-action = ":lua require('persistence').select()",
-},
-{
-icon = " ",
-key = "f",
-desc = "Find File",
-action = ":lua Snacks.dashboard.pick('files')",
-},
-{
-icon = " ",
-key = "/",
-desc = "Live Grep",
-action = ":lua Snacks.dashboard.pick('live_grep')",
-},
-{
-icon = " ",
-key = "q",
-desc = "Quit",
-action = ":qa",
-},
-},
+header = "",
+keys = {},
 },
 },
 zen = { enabled = true },
