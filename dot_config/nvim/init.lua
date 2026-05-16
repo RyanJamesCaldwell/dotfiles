@@ -1353,7 +1353,7 @@ enabled = true,
 sections = {
 {
 section = "terminal",
-cmd = 'printf "\n  %s  ·  %s\n" "$(basename "$(git rev-parse --show-toplevel 2>/dev/null || echo nvim)")" "$(git branch --show-current 2>/dev/null || echo "")"',
+cmd = [[repo=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null) || repo=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null); branch=$(git branch --show-current 2>/dev/null); if [ -n "$repo" ] && [ -n "$branch" ]; then printf "\n  %s · %s" "$repo" "$branch"; elif [ -n "$repo" ]; then printf "\n  %s" "$repo"; else printf "\n  nvim"; fi]],
 height = 3,
 padding = 0,
 indent = 0,
@@ -1365,7 +1365,7 @@ section = "terminal",
 enabled = function()
 return Snacks.git.get_root() ~= nil
 end,
-cmd = "gh issue list --assignee @me --limit 8 2>/dev/null || echo '  No issues'",
+cmd = [[out=$(gh issue list --assignee @me --limit 8 2>/dev/null); if [ -z "$out" ]; then printf "\n  ✓ No issues assigned to you\n"; else echo "$out"; fi]],
 height = 10,
 padding = 1,
 indent = 2,
@@ -1379,11 +1379,21 @@ section = "terminal",
 enabled = function()
 return Snacks.git.get_root() ~= nil
 end,
-cmd = "gh pr list --limit 8 2>/dev/null || echo '  No PRs'",
+cmd = [[out=$(gh pr list --limit 8 2>/dev/null); if [ -z "$out" ]; then printf "\n  ✓ No open pull requests\n"; else echo "$out"; fi]],
 height = 10,
 padding = 1,
 indent = 2,
 },
+},
+{
+enabled = function()
+return Snacks.git.get_root() == nil
+end,
+section = "terminal",
+cmd = [[printf "\n  Not in a git repository — open a project to see issues and PRs\n"]],
+height = 3,
+padding = 1,
+indent = 2,
 },
 },
 preset = {
