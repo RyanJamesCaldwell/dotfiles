@@ -1354,13 +1354,15 @@ sections = {
 {
 section = "terminal",
 cmd = [[
-  img="$HOME/.config/nvim/assets/thisisfine.jpg"
-  cache="$HOME/.cache/nvim/dashboard_header.ansi"
-  mkdir -p "$HOME/.cache/nvim"
-  if [ ! -f "$cache" ] || [ "$img" -nt "$cache" ]; then
-    chafa "$img" --format symbols --symbols vhalf --size 60x17 --stretch > "$cache"
-  fi
-  cat "$cache"
+  _img=$(cat ~/.cache/nvim/dashboard_image 2>/dev/null | tr -d '\n')
+  _img=${_img:-thisisfine.jpg}
+  _src=~/.config/nvim/assets/$_img
+  [ -f "$_src" ] || { _img=thisisfine.jpg; _src=~/.config/nvim/assets/$_img; }
+  _key=$(printf '%s' "$_img" | tr -cs 'a-zA-Z0-9' '_')
+  _cache=~/.cache/nvim/dashboard_${_key}.ansi
+  mkdir -p ~/.cache/nvim
+  [ -f "$_cache" ] && [ ! "$_src" -nt "$_cache" ] || chafa "$_src" --format symbols --symbols vhalf --size 60x17 --stretch > "$_cache"
+  cat "$_cache"
 ]],
 height = 17,
 padding = 1,
@@ -1482,6 +1484,38 @@ vim.ui.open(item.url)
 end } })
 end)
 )
+end,
+},
+{
+icon = " ",
+key = "s",
+desc = "Swap Image",
+action = function()
+local assets = vim.fn.expand("~/.config/nvim/assets")
+local paths = vim.fn.glob(assets .. "/*", false, true)
+local items = vim.tbl_filter(function(item)
+return item.text:match("%.[jJpPgGnNwW][pPeEiI][gGeEfF]?[pP]?$")
+end, vim.tbl_map(function(p)
+return { text = vim.fn.fnamemodify(p, ":t") }
+end, paths))
+if #items == 0 then
+vim.notify("No images found in " .. assets, vim.log.levels.WARN)
+return
+end
+Snacks.picker.pick({
+title = " Swap Dashboard Image",
+items = items,
+format = "text",
+layout = { hidden = { "preview" } },
+actions = {
+confirm = function(picker, item)
+picker:close()
+local f = io.open(vim.fn.expand("~/.cache/nvim/dashboard_image"), "w")
+if f then f:write(item.text); f:close() end
+Snacks.dashboard.open()
+end,
+},
+})
 end,
 },
 },
