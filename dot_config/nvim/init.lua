@@ -1352,10 +1352,40 @@ dashboard = {
 enabled = true,
 sections = {
 {
+section = "header",
+},
+{
+section = "keys",
+padding = 1,
+},
+{
+icon = " ",
+title = "Open PRs",
 section = "terminal",
-cmd = [[repo=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null) || repo=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null); branch=$(git branch --show-current 2>/dev/null); if [ -n "$repo" ] && [ -n "$branch" ]; then printf "\n  %s · %s" "$repo" "$branch"; elif [ -n "$repo" ]; then printf "\n  %s" "$repo"; else printf "\n  nvim"; fi]],
+enabled = function()
+return Snacks.git.get_root() ~= nil
+end,
+cmd = [[out=$(gh pr list --limit 8 --json number,title,headRefName,isDraft,reviewDecision --jq '.[] | "  #\(.number)  \(.title[:42])\(if .isDraft then "  [draft]" else "" end)\(if .reviewDecision != null and .reviewDecision != "" and .reviewDecision != "REVIEW_REQUIRED" then "  [\(.reviewDecision)]" else "" end)"' 2>/dev/null); if [ -z "$out" ]; then printf "\n  ✓ No open pull requests\n"; else printf "\n%s\n" "$out"; fi]],
+height = 10,
+padding = 1,
+indent = 2,
+},
+{
+pane = 2,
+{
+section = "terminal",
+cmd = [[repo=$(gh repo view --json nameWithOwner -q .nameWithOwner 2>/dev/null) || repo=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" 2>/dev/null); branch=$(git branch --show-current 2>/dev/null); if [ -n "$repo" ] && [ -n "$branch" ]; then printf "\n  %s · %s\n" "$repo" "$branch"; elif [ -n "$repo" ]; then printf "\n  %s\n" "$repo"; else printf "\n  nvim\n"; fi]],
 height = 3,
 padding = 0,
+indent = 0,
+},
+{
+icon = "󰊢 ",
+title = "Contributions",
+section = "terminal",
+cmd = [[GH_PAGER= gh api graphql -f query='{ viewer { contributionsCollection { contributionCalendar { weeks { contributionDays { contributionCount } } } } } }' --jq '.data.viewer.contributionsCollection.contributionCalendar.weeks as $w | ["S","M","T","W","T","F","S"] as $days | [range(7)] | map(. as $d | "  \($days[$d]) " + ($w | map((.contributionDays[$d] // {"contributionCount":0}).contributionCount) | map(if . == 0 then "·" elif . <= 2 then "░" elif . <= 5 then "▒" elif . <= 8 then "▓" else "█" end) | join(""))) | join("\n")' 2>/dev/null || printf "  (contribution data unavailable)"]],
+height = 10,
+padding = 1,
 indent = 0,
 },
 {
@@ -1365,40 +1395,86 @@ section = "terminal",
 enabled = function()
 return Snacks.git.get_root() ~= nil
 end,
-cmd = [[out=$(gh issue list --assignee @me --limit 8 2>/dev/null); if [ -z "$out" ]; then printf "\n  ✓ No issues assigned to you\n"; else echo "$out"; fi]],
+cmd = [[out=$(gh issue list --assignee @me --limit 8 --json number,title,labels --jq '.[] | "  #\(.number)  \(.title[:45])\(if (.labels | length) > 0 then "  [\([.labels[].name] | join(", "))]" else "" end)"' 2>/dev/null); if [ -z "$out" ]; then printf "\n  ✓ No issues assigned to you\n"; else printf "\n%s\n" "$out"; fi]],
 height = 10,
 padding = 1,
 indent = 2,
-},
-{
-pane = 2,
-{
-icon = " ",
-title = "Open PRs",
-section = "terminal",
-enabled = function()
-return Snacks.git.get_root() ~= nil
-end,
-cmd = [[out=$(gh pr list --limit 8 2>/dev/null); if [ -z "$out" ]; then printf "\n  ✓ No open pull requests\n"; else echo "$out"; fi]],
-height = 10,
-padding = 1,
-indent = 2,
-},
 },
 {
 enabled = function()
 return Snacks.git.get_root() == nil
 end,
 section = "terminal",
-cmd = [[printf "\n  Not in a git repository — open a project to see issues and PRs\n"]],
+cmd = [[printf "\n  Open a project to see issues and PRs\n"]],
 height = 3,
 padding = 1,
 indent = 2,
 },
 },
+},
 preset = {
-header = "",
-keys = {},
+header = table.concat(Bonsai, "\n"),
+keys = {
+{
+icon = " ",
+key = "i",
+desc = "Browse Issues",
+action = function()
+vim.system(
+{ "gh", "issue", "list", "--assignee", "@me", "--limit", "20", "--json", "number,title,url" },
+{ text = true },
+vim.schedule_wrap(function(out)
+if out.code ~= 0 then
+vim.notify("gh: " .. (out.stderr or "error"), vim.log.levels.ERROR)
+return
+end
+local issues = vim.json.decode(out.stdout) or {}
+if #issues == 0 then
+vim.notify("No issues assigned to you", vim.log.levels.INFO)
+return
+end
+local items = vim.tbl_map(function(issue)
+return { text = string.format("#%-4d  %s", issue.number, issue.title), url = issue.url }
+end, issues)
+Snacks.picker.pick({ title = " My Issues", items = items, format = "text", layout = { hidden = { "preview" } }, actions = { confirm = function(picker, item)
+picker:close()
+vim.ui.open(item.url)
+end } })
+end)
+)
+end,
+},
+{
+icon = " ",
+key = "p",
+desc = "Browse PRs",
+action = function()
+vim.system(
+{ "gh", "pr", "list", "--limit", "20", "--json", "number,title,url,isDraft,reviewDecision" },
+{ text = true },
+vim.schedule_wrap(function(out)
+if out.code ~= 0 then
+vim.notify("gh: " .. (out.stderr or "error"), vim.log.levels.ERROR)
+return
+end
+local prs = vim.json.decode(out.stdout) or {}
+if #prs == 0 then
+vim.notify("No open pull requests", vim.log.levels.INFO)
+return
+end
+local items = vim.tbl_map(function(pr)
+local suffix = pr.isDraft and "  [draft]" or (pr.reviewDecision == "APPROVED" and "  [approved]" or "")
+return { text = string.format("#%-4d  %s%s", pr.number, pr.title, suffix), url = pr.url }
+end, prs)
+Snacks.picker.pick({ title = " Open PRs", items = items, format = "text", layout = { hidden = { "preview" } }, actions = { confirm = function(picker, item)
+picker:close()
+vim.ui.open(item.url)
+end } })
+end)
+)
+end,
+},
+},
 },
 },
 zen = { enabled = true },
