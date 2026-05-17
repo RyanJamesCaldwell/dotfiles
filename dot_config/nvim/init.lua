@@ -1352,7 +1352,18 @@ dashboard = {
 enabled = true,
 sections = {
 {
-section = "header",
+section = "terminal",
+cmd = [[
+  img="$HOME/.config/nvim/assets/thisisfine.jpg"
+  cache="$HOME/.cache/nvim/dashboard_header.ansi"
+  mkdir -p "$HOME/.cache/nvim"
+  if [ ! -f "$cache" ] || [ "$img" -nt "$cache" ]; then
+    chafa "$img" --format symbols --symbols vhalf --size 60x17 --stretch > "$cache"
+  fi
+  cat "$cache"
+]],
+height = 17,
+padding = 1,
 },
 {
 section = "keys",
@@ -1413,7 +1424,6 @@ indent = 2,
 },
 },
 preset = {
-header = table.concat(Bonsai, "\n"),
 keys = {
 {
 icon = " ",
