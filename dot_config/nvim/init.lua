@@ -1379,7 +1379,7 @@ section = "terminal",
 enabled = function()
 return Snacks.git.get_root() ~= nil
 end,
-cmd = [[out=$(gh pr list --limit 8 --json number,title,headRefName,isDraft,reviewDecision --jq '.[] | "  #\(.number)  \(.title[:42])\(if .isDraft then "  [draft]" else "" end)\(if .reviewDecision != null and .reviewDecision != "" and .reviewDecision != "REVIEW_REQUIRED" then "  [\(.reviewDecision)]" else "" end)"' 2>/dev/null); if [ -z "$out" ]; then printf "\n  ✓ No open pull requests\n"; else printf "\n%s\n" "$out"; fi]],
+cmd = [[out=$(gh pr list --limit 8 --json number,title,isDraft,reviewDecision --jq '.[] | (if .isDraft then "🚧" elif .reviewDecision == "APPROVED" then "✅" elif .reviewDecision == "CHANGES_REQUESTED" then "🔴" elif .reviewDecision == "REVIEW_REQUIRED" then "👀" else "  " end) as $icon | "  \($icon)  #\(.number)  \(.title[:36])"' 2>/dev/null); if [ -z "$out" ]; then printf "\n  ✓ No open pull requests\n"; else printf "\n%s\n" "$out"; fi]],
 height = 10,
 padding = 1,
 indent = 2,
@@ -1476,8 +1476,12 @@ vim.notify("No open pull requests", vim.log.levels.INFO)
 return
 end
 local items = vim.tbl_map(function(pr)
-local suffix = pr.isDraft and "  [draft]" or (pr.reviewDecision == "APPROVED" and "  [approved]" or "")
-return { text = string.format("#%-4d  %s%s", pr.number, pr.title, suffix), url = pr.url }
+local icon = pr.isDraft and "🚧"
+  or pr.reviewDecision == "APPROVED" and "✅"
+  or pr.reviewDecision == "CHANGES_REQUESTED" and "🔴"
+  or pr.reviewDecision == "REVIEW_REQUIRED" and "👀"
+  or " "
+return { text = string.format("%s  #%-4d  %s", icon, pr.number, pr.title), url = pr.url }
 end, prs)
 Snacks.picker.pick({ title = " Open PRs", items = items, format = "text", layout = { hidden = { "preview" } }, actions = { confirm = function(picker, item)
 picker:close()
