@@ -1352,7 +1352,21 @@ dashboard = {
 enabled = true,
 sections = {
 {
-section = "header",
+section = "terminal",
+cmd = [[
+  _img=$(cat ~/.cache/nvim/dashboard_image 2>/dev/null | tr -d '\n')
+  _img=${_img:-thisisfine.jpg}
+  _src=~/.config/nvim/assets/$_img
+  [ -f "$_src" ] || { _img=thisisfine.jpg; _src=~/.config/nvim/assets/$_img; }
+  _key=$(printf '%s' "$_img" | tr -cs 'a-zA-Z0-9' '_')
+  _cache=~/.cache/nvim/dashboard_${_key}.ansi
+  mkdir -p ~/.cache/nvim
+  [ -f "$_cache" ] && [ ! "$_src" -nt "$_cache" ] || chafa "$_src" --format symbols --symbols vhalf --size 60x17 --stretch > "$_cache"
+  cat "$_cache"
+]],
+height = 17,
+padding = 1,
+ttl = 0,
 },
 {
 section = "keys",
@@ -1413,7 +1427,6 @@ indent = 2,
 },
 },
 preset = {
-header = table.concat(Bonsai, "\n"),
 keys = {
 {
 icon = " ",
@@ -1472,6 +1485,30 @@ vim.ui.open(item.url)
 end } })
 end)
 )
+end,
+},
+{
+icon = " ",
+key = "s",
+desc = "Swap Image",
+action = function()
+local assets = vim.fn.expand("~/.config/nvim/assets")
+local paths = vim.fn.glob(assets .. "/*", false, true)
+local names = vim.tbl_filter(function(name)
+return name:match("%.[jJpPgGwW][pPnNeE][gGeEfF]?[pP]?$")
+end, vim.tbl_map(function(p)
+return vim.fn.fnamemodify(p, ":t")
+end, paths))
+if #names == 0 then
+vim.notify("No images found in " .. assets, vim.log.levels.WARN)
+return
+end
+vim.ui.select(names, { prompt = "Swap Dashboard Image" }, function(choice)
+if not choice then return end
+local f = io.open(vim.fn.expand("~/.cache/nvim/dashboard_image"), "w")
+if f then f:write(choice); f:close() end
+vim.schedule(function() Snacks.dashboard.open() end)
+end)
 end,
 },
 },
