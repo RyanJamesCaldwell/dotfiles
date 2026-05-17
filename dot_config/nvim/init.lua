@@ -1366,6 +1366,7 @@ cmd = [[
 ]],
 height = 17,
 padding = 1,
+ttl = 0,
 },
 {
 section = "keys",
@@ -1493,29 +1494,21 @@ desc = "Swap Image",
 action = function()
 local assets = vim.fn.expand("~/.config/nvim/assets")
 local paths = vim.fn.glob(assets .. "/*", false, true)
-local items = vim.tbl_filter(function(item)
-return item.text:match("%.[jJpPgGnNwW][pPeEiI][gGeEfF]?[pP]?$")
+local names = vim.tbl_filter(function(name)
+return name:match("%.[jJpPgGwW][pPnNeE][gGeEfF]?[pP]?$")
 end, vim.tbl_map(function(p)
-return { text = vim.fn.fnamemodify(p, ":t") }
+return vim.fn.fnamemodify(p, ":t")
 end, paths))
-if #items == 0 then
+if #names == 0 then
 vim.notify("No images found in " .. assets, vim.log.levels.WARN)
 return
 end
-Snacks.picker.pick({
-title = " Swap Dashboard Image",
-items = items,
-format = "text",
-layout = { hidden = { "preview" } },
-actions = {
-confirm = function(picker, item)
-picker:close()
+vim.ui.select(names, { prompt = "Swap Dashboard Image" }, function(choice)
+if not choice then return end
 local f = io.open(vim.fn.expand("~/.cache/nvim/dashboard_image"), "w")
-if f then f:write(item.text); f:close() end
-Snacks.dashboard.open()
-end,
-},
-})
+if f then f:write(choice); f:close() end
+vim.schedule(function() Snacks.dashboard.open() end)
+end)
 end,
 },
 },
