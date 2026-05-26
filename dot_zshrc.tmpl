@@ -86,6 +86,7 @@ plugins=(git)
 source $ZSH/oh-my-zsh.sh
 
 export PNPM_HOME="$HOME/Library/pnpm/pnpm"
+export BUN_INSTALL="$HOME/.bun"
 export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 
@@ -127,7 +128,7 @@ path=(
   /opt/homebrew/opt/curl/bin
   $HOME/.local/bin
   $HOME/go/bin
-  $HOME/.bun/bin
+  $BUN_INSTALL/bin
   $ASDF_DATA_DIR/shims
   $path
 )
