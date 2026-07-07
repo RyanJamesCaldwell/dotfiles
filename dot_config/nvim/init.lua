@@ -856,7 +856,6 @@ require("lazy").setup({
 				-- ts_ls = {},
 				--
 
-				ruby_lsp = {},
 				lua_ls = {
 					-- cmd = { ... },
 					-- filetypes = { ... },
@@ -890,7 +889,6 @@ require("lazy").setup({
 			vim.list_extend(ensure_installed, {
 				"stylua", -- Used to format Lua code
 				"gopls",
-				"ruby_lsp",
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
@@ -910,7 +908,7 @@ require("lazy").setup({
 				},
 			})
 
-			vim.lsp.enable({ "lua_ls", "ruby_lsp" })
+			vim.lsp.enable({ "lua_ls" })
 		end,
 	},
 
@@ -1768,7 +1766,6 @@ zen = { enabled = true },
 			vim.keymap.set("n", "<leader>sh", toggle_telescope_harpoon, { desc = "[S]earch [H]arpoon files" })
 		end,
 	},
-	{ "github/copilot.vim" },
 
 	-- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
 	-- init.lua. If you want these files, they are in the repository, so you can just download them and
