@@ -176,8 +176,12 @@ for i = 1, 9 do
 end
 
 -- File explorer
-vim.keymap.set("n", "<leader>e", "<cmd>Neotree toggle<cr>", { desc = "Toggle file [E]xplorer" })
-vim.keymap.set("n", "<leader>E", "<cmd>Neotree focus<cr>", { desc = "Focus file [E]xplorer" })
+vim.keymap.set("n", "<leader>e", function()
+	Snacks.explorer()
+end, { desc = "Toggle file [E]xplorer" })
+vim.keymap.set("n", "<leader>E", function()
+	Snacks.explorer.reveal()
+end, { desc = "Reveal current file in [E]xplorer" })
 
 -- Terminal
 vim.keymap.set("n", "<leader>ft", "<cmd>ToggleTerm<cr>", { desc = "[F]loating [T]erminal" })
@@ -194,26 +198,6 @@ vim.keymap.set("n", "<leader>jq", ":%!jq .<CR>", { desc = "Format [J]SON with [j
 -- Quit keymaps
 vim.keymap.set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "[Q]uit all" })
 vim.keymap.set("n", "<leader>qQ", "<cmd>qa!<cr>", { desc = "[Q]uit all (force)" })
-
--- Simple and effective
-vim.keymap.set("n", "<leader>gf", function()
-	local lines = vim.fn.systemlist("git status --porcelain")
-	local files = {}
-
-	for _, line in ipairs(lines) do
-		if line ~= "" then
-			local file = line:sub(4) -- Remove git status prefix
-			table.insert(files, vim.fn.fnameescape(file))
-		end
-	end
-
-	if #files > 0 then
-		vim.cmd("args " .. table.concat(files, " "))
-		print("Loaded " .. #files .. " modified files")
-	else
-		print("No modified files found")
-	end
-end, { desc = "Open all git modified files" })
 
 -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
 -- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
@@ -454,6 +438,7 @@ require("lazy").setup({
 				{ "<leader>s", group = "[S]earch" },
 				{ "<leader>t", group = "[T]oggle" },
 				{ "<leader>h", group = "Git [H]unk", mode = { "n", "v" } },
+				{ "<leader>g", group = "[G]it" },
 				{ "<leader>a", desc = "Harpoon: Add file" },
 			},
 		},
@@ -1346,6 +1331,11 @@ require("lazy").setup({
 				end,
 			})
 			require("snacks").setup({
+				explorer = {
+					enabled = true,
+					replace_netrw = true,
+				},
+				picker = { enabled = true },
 dashboard = {
 enabled = true,
 sections = {
@@ -1538,30 +1528,6 @@ zen = { enabled = true },
 	-- { 'tpope/vim-rails' },
 	{ "tpope/vim-rhubarb" },
 	{
-		"nvim-neo-tree/neo-tree.nvim",
-		branch = "v3.x",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"MunifTanjim/nui.nvim",
-			"nvim-tree/nvim-web-devicons", -- optional, but recommended
-		},
-		lazy = false, -- neo-tree will lazily load itself
-		opts = {
-			filesystem = {
-				follow_current_file = {
-					enabled = true, -- This will find and focus the file in the active buffer every time
-					leave_dirs_open = true, -- `false` closes auto expanded dirs, such as with `:Neotree reveal`
-				},
-				hijack_netrw_behavior = "open_default", -- netrw disabled, opening a directory opens neo-tree
-				filtered_items = {
-					visible = true,
-					hide_dotfiles = false,
-					hide_gitignored = false,
-				},
-			},
-		},
-	},
-	{
 		"akinsho/toggleterm.nvim",
 		version = "*",
 		opts = {
@@ -1582,14 +1548,6 @@ zen = { enabled = true },
 				diagnostics = "nvim_lsp",
 				separator_style = "slant",
 				numbers = "ordinal",
-				offsets = {
-					{
-						filetype = "neo-tree",
-						text = "File Explorer",
-						text_align = "left",
-						separator = true,
-					},
-				},
 			},
 		},
 	},
@@ -1673,36 +1631,6 @@ zen = { enabled = true },
 
 			opts.options = vim.opt.sessionoptions:get() -- use current sessionoptions
 			require("persistence").setup(opts)
-
-			-- Proper autocmd setup for neo-tree integration
-			local group = vim.api.nvim_create_augroup("persistence-neo-tree", { clear = true })
-
-			vim.api.nvim_create_autocmd("User", {
-				group = group,
-				pattern = "PersistenceSavePre",
-				callback = function()
-					pcall(vim.cmd, "Neotree close")
-				end,
-			})
-
-			vim.api.nvim_create_autocmd("User", {
-				group = group,
-				pattern = "PersistenceLoadPre",
-				callback = function()
-					-- Save current session and close all buffers before loading new one
-					vim.cmd("silent %bd!")
-				end,
-			})
-
-			vim.api.nvim_create_autocmd("User", {
-				group = group,
-				pattern = "PersistenceLoadPost",
-				callback = function()
-					vim.schedule(function()
-						pcall(vim.cmd, "Neotree show")
-					end)
-				end,
-			})
 		end,
 	},
 	{
@@ -1786,7 +1714,7 @@ zen = { enabled = true },
 	--    This is the easiest way to modularize your config.
 	--
 	--  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-	-- { import = 'custom.plugins' },
+	{ import = "custom.plugins" },
 	--
 	-- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
 	-- Or use telescope!
