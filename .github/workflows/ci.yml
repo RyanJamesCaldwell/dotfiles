@@ -29,6 +29,12 @@ jobs:
       - name: Install validation tools
         run: brew install chezmoi stylua neovim
 
+      - name: Check shell script syntax
+        run: |
+          set -euo pipefail
+          bash -n install.sh
+          bash -n .github/scripts/verify-dotfiles.sh
+
       - name: Validate Brewfile
         run: |
           ruby -c Brewfile
@@ -86,3 +92,46 @@ jobs:
           XDG_STATE_HOME="$PWD/.ci/nvim-state" \
           XDG_CACHE_HOME="$PWD/.ci/nvim-cache" \
             nvim --headless "+Lazy! sync" +qa
+
+  bootstrap-ubuntu:
+    name: Bootstrap on Ubuntu
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      DEBIAN_FRONTEND: noninteractive
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show environment
+        run: |
+          . /etc/os-release
+          echo "distro: ${PRETTY_NAME}"
+          echo "arch: $(uname -m)"
+          echo "home: ${HOME}"
+
+      - name: Bootstrap with install.sh --minimal
+        run: ./install.sh --minimal
+
+      - name: Verify applied configuration
+        run: .github/scripts/verify-dotfiles.sh "$GITHUB_WORKSPACE"
+
+      - name: Re-run install.sh (idempotency)
+        run: ./install.sh --minimal
+
+      - name: Verify applied configuration again
+        run: .github/scripts/verify-dotfiles.sh "$GITHUB_WORKSPACE"
+
+      - name: Report tool versions
+        if: always()
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          for tool in chezmoi starship nvim fzf eza delta lazygit gh zoxide bat fd; do
+            if command -v "$tool" >/dev/null 2>&1; then
+              printf '%-10s %s\n' "$tool" "$("$tool" --version 2>&1 | head -n1)"
+            else
+              printf '%-10s %s\n' "$tool" "(not installed)"
+            fi
+          done

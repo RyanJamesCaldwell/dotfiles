@@ -105,6 +105,7 @@ end
 local initial_theme = read_active_theme()
 local initial_overrides = theme_overrides_for(initial_theme)
 local last_theme_by_window = {}
+local is_macos = wezterm.target_triple:find("darwin") ~= nil
 
 -- ============================================================================
 -- DEV WORKSPACE LAUNCHER
@@ -121,9 +122,10 @@ local function open_dev_workspace(window, pane)
 
 	-- Resize and center window via AppleScript (uses logical screen coordinates)
 	-- Ratio-based: targetSize = currentSize * (targetCells / currentCells)
-	wezterm.background_child_process({
-		"osascript",
-		"-e", string.format([[
+	if is_macos then
+		wezterm.background_child_process({
+			"osascript",
+			"-e", string.format([[
 tell application "System Events"
 	tell process "WezTerm"
 		set {curW, curH} to size of front window
@@ -143,7 +145,8 @@ tell application "System Events"
 		set position of front window to {(_sw - _w) / 2, (_sh - _h) / 2}
 	end tell
 end tell]], cur_cols, cur_rows),
-	})
+		})
+	end
 
 	-- Spawn a new tab (becomes the left pane)
 	local tab, left_pane, _ = window:mux_window():spawn_tab({
