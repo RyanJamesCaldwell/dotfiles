@@ -115,6 +115,17 @@ jobs:
       - name: Bootstrap with install.sh --minimal
         run: ./install.sh --minimal
 
+      - name: Normalise zsh directory permissions
+        # The runner image leaves /usr/share/zsh group- and world-writable, so
+        # oh-my-zsh refuses to load completions and prints a banner. No real
+        # Debian/Ubuntu install ships it that way.
+        run: |
+          sudo chmod -R go-w /usr/share/zsh || true
+          if command -v setfacl >/dev/null 2>&1; then
+            sudo setfacl -Rb /usr/share/zsh || true
+          fi
+          ls -ld /usr/share/zsh
+
       - name: Verify applied configuration
         run: .github/scripts/verify-dotfiles.sh "$GITHUB_WORKSPACE"
 

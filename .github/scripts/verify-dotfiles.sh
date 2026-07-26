@@ -83,16 +83,33 @@ else
 fi
 
 # Runs a snippet in a fresh interactive zsh and compares stdout to an expectation.
+#
 # TERM is cleared because ~/.zshrc runs `tabs -2`, which writes tab-stop escape
 # sequences to stdout whenever a terminfo entry is available.
+#
+# Startup itself can also write to stdout (oh-my-zsh prints an insecure-directory
+# banner there, for example), so the snippet output is delimited by a marker and
+# everything before it is discarded.
+ZSH_PROBE_MARKER='__verify_dotfiles_output__'
+
 check_zsh_output() {
-  local description="$1" snippet="$2" expected="$3" actual status
-  actual="$(env -u TERM "${TIMEOUT_CMD[@]}" zsh -i -c "$snippet" 2>/dev/null | strip_terminal_escapes)"
+  local description="$1" snippet="$2" expected="$3" raw actual status
+  raw="$(env -u TERM "${TIMEOUT_CMD[@]}" zsh -i -c "print -rn -- '${ZSH_PROBE_MARKER}'
+${snippet}" 2>/dev/null | strip_terminal_escapes)"
   status=$?
+
   if [[ $status -ne 0 ]]; then
     fail "${description} (zsh exited with ${status})"
     return
   fi
+
+  if [[ "$raw" != *"${ZSH_PROBE_MARKER}"* ]]; then
+    fail "${description}: zsh produced no output marker"
+    return
+  fi
+
+  actual="${raw#*"${ZSH_PROBE_MARKER}"}"
+
   if [[ "$actual" == "$expected" ]]; then
     pass "${description} -> ${actual}"
   else
