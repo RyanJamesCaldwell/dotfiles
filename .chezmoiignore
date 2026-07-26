@@ -1,0 +1,3 @@
+# Repository tooling, not dotfiles. Without this chezmoi would treat tools/ as
+# something to install and create ~/tools.
+tools

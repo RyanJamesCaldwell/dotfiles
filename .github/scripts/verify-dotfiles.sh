@@ -121,13 +121,22 @@ section "Managed files"
 check_file "${HOME}/.zshrc"
 check_file "${HOME}/.gitconfig"
 check_file "${HOME}/.wezterm.lua"
+# Single source of truth for this script, kept in step with THEME_CHOICES in
+# dot_zshrc.tmpl. THEME_FAMILY is the generated set that must resolve in three
+# places at once; rosepine is served by a Neovim plugin instead of a module.
+THEME_FAMILY="nightshade aurora abyss"
+ALL_THEMES="${THEME_FAMILY} rosepine"
+DEFAULT_THEME="nightshade"
+
 check_file "${HOME}/.config/chezmoi/chezmoi.yaml"
 check_file "${HOME}/.config/nvim/init.lua"
 check_file "${HOME}/.config/nvim/lazy-lock.json"
 check_file "${HOME}/.config/starship.toml"
-check_file "${HOME}/.config/starship/themes/sakura_night.toml"
-check_file "${HOME}/.config/starship/themes/ashfall.toml"
 check_file "${HOME}/.config/starship/themes/rosepine.toml"
+for name in ${THEME_FAMILY}; do
+  check_file "${HOME}/.config/starship/themes/${name}.toml"
+  check_file "${HOME}/.config/nvim/lua/custom/${name}.lua"
+done
 check_file "${HOME}/.config/wt/wt.zsh"
 
 section "Platform-specific rendering"
@@ -172,8 +181,19 @@ else
 fi
 
 check_zsh_output "EDITOR is nvim" 'print -r -- "$EDITOR"' 'nvim'
-check_zsh_output "default theme" 'theme current | head -n1' 'Current theme: sakura_night'
-check_zsh_output "theme list" 'theme list | tr "\n" " " | sed "s/ $//"' 'sakura_night ashfall rosepine'
+# A freshly bootstrapped machine has no state file and falls back to the first
+# entry in THEME_CHOICES, and a state file left over from an older revision can
+# name a retired theme that zsh rightly refuses. Either way the shell reports
+# the default; only a currently valid choice should be expected verbatim.
+EXPECTED_THEME="$(cat "${HOME}/.config/theme/current" 2>/dev/null || true)"
+case " ${ALL_THEMES} " in
+  *" ${EXPECTED_THEME} "*) ;;
+  *) EXPECTED_THEME="$DEFAULT_THEME" ;;
+esac
+check_zsh_output "theme reports the persisted choice" 'theme current | head -n1' \
+  "Current theme: ${EXPECTED_THEME}"
+check_zsh_output "theme list" 'theme list | tr "\n" " " | sed "s/ $//"' \
+  "${ALL_THEMES}"
 check_zsh_output "profile defaults to personal" 'profile current | head -n1' 'Current profile: personal'
 check_zsh_output "starship prompt is initialised" 'print -r -- "$STARSHIP_SHELL"' 'zsh'
 # zoxide binds `cd` differently across versions: a function in 0.4.x and 1.x, an
@@ -198,18 +218,63 @@ else
 fi
 
 section "Theme switching round-trip"
-check_zsh_output "theme ashfall applies" 'theme ashfall' 'Theme set to ashfall'
-if [[ "$(cat "${HOME}/.config/theme/current" 2>/dev/null)" == "ashfall" ]]; then
+# These checks rewrite the persisted theme, so remember what was there and put
+# it back at the end rather than leaving the machine on a test value.
+ORIGINAL_THEME="$(cat "${HOME}/.config/theme/current" 2>/dev/null || true)"
+# A state file left over from an older revision can name a retired theme, which
+# `theme` rightly rejects; fall back so the restore at the end still succeeds.
+case " ${ALL_THEMES} " in
+  *" ${ORIGINAL_THEME} "*) ;;
+  *) ORIGINAL_THEME="$DEFAULT_THEME" ;;
+esac
+
+check_zsh_output "theme rosepine applies" 'theme rosepine' 'Theme set to rosepine'
+if [[ "$(cat "${HOME}/.config/theme/current" 2>/dev/null)" == "rosepine" ]]; then
   pass "theme state file updated"
 else
   fail "theme state file was not updated"
 fi
-check_zsh_output "new shell picks up the theme" 'theme current | head -n1' 'Current theme: ashfall'
+check_zsh_output "new shell picks up the theme" 'theme current | head -n1' 'Current theme: rosepine'
 check_zsh_output "starship config follows the theme" \
-  'print -r -- "${STARSHIP_CONFIG:t}"' 'ashfall.toml'
+  'print -r -- "${STARSHIP_CONFIG:t}"' 'rosepine.toml'
 check_zsh_output "invalid theme is rejected" \
   'theme nonsense >/dev/null 2>&1 || print -r -- rejected' 'rejected'
-check_zsh_output "theme sakura_night restores default" 'theme sakura_night' 'Theme set to sakura_night'
+
+section "Generated theme family"
+# Each of these is a full theme, so it has to exist in three places at once: a
+# Starship config, a WezTerm scheme and a Neovim module.
+for name in ${THEME_FAMILY}; do
+  if STARSHIP_CONFIG="${HOME}/.config/starship/themes/${name}.toml" \
+    starship print-config >/dev/null 2>&1; then
+    pass "starship parses ${name}.toml"
+  else
+    fail "starship rejected ${name}.toml"
+  fi
+
+  check_contains "${HOME}/.wezterm.lua" "${name} = {"
+  check_zsh_output "theme ${name} applies" "theme ${name}" "Theme set to ${name}"
+  check_zsh_output "starship config follows ${name}" \
+    'print -r -- "${STARSHIP_CONFIG:t}"' "${name}.toml"
+  check_zsh_output "NVIM_THEME follows ${name}" 'print -r -- "$NVIM_THEME"' "${name}"
+done
+
+# Loading each module for real is the only way to catch a bad highlight spec:
+# a Lua syntax check still passes on arguments that nvim_set_hl rejects.
+if command -v nvim >/dev/null 2>&1; then
+  for name in ${THEME_FAMILY}; do
+    if nvim --headless --clean --cmd "set runtimepath+=${HOME}/.config/nvim" \
+      -c "lua require('custom.${name}').setup()" -c 'quitall!' >/dev/null 2>&1; then
+      pass "neovim loads the ${name} colorscheme"
+    else
+      fail "neovim failed to load the ${name} colorscheme"
+    fi
+  done
+else
+  pass "neovim is not installed; colorscheme load checks correctly skipped"
+fi
+
+check_zsh_output "theme restores the original" "theme ${ORIGINAL_THEME}" \
+  "Theme set to ${ORIGINAL_THEME}"
 
 section "Summary"
 printf '%d checks, %d failures\n' "$CHECKS" "$FAILURES"

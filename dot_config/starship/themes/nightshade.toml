@@ -1,0 +1,212 @@
+# nightshade - Deep plum under a soft pastel foreground.
+
+add_newline = true
+command_timeout = 1000
+palette = "nightshade"
+
+# Line 1: identity and context, left aligned.
+# A hairline fill pushes transient state (failures, timing, clock) to the right
+# edge, so the eye always finds the same information in the same place.
+# Line 2: nothing but the caret, to keep typed commands on a clean margin.
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_state\
+$git_metrics\
+$nodejs\
+$python\
+$golang\
+$rust\
+$java\
+$lua\
+$ruby\
+$php\
+$package\
+$docker_context\
+$kubernetes\
+$aws\
+$fill\
+$jobs\
+$status\
+$cmd_duration\
+$time\
+$line_break\
+$character\
+"""
+
+# --- left: identity ---------------------------------------------------------
+
+[username]
+show_always = false
+format = "[$user](ctx)[@](rule)"
+style_user = "ctx"
+style_root = "bold err"
+
+[hostname]
+ssh_only = true
+format = "[$hostname](ctx) "
+
+[directory]
+format = "[$path]($style)[$read_only]($read_only_style) "
+style = "bold dir"
+truncation_length = 3
+truncation_symbol = "…/"
+truncate_to_repo = true
+read_only = " ro"
+read_only_style = "dir_dim"
+
+# --- left: git --------------------------------------------------------------
+
+[git_branch]
+symbol = ""
+format = "[$branch](branch) "
+truncation_length = 24
+truncation_symbol = "…"
+
+[git_state]
+format = "[$state( $progress_current/$progress_total)](bold gitstate) "
+rebase = "rebase"
+merge = "merge"
+revert = "revert"
+cherry_pick = "cherry-pick"
+bisect = "bisect"
+am = "am"
+am_or_rebase = "am/rebase"
+
+# Per-line churn, which is the number that actually tells you how big the
+# working change is.
+[git_metrics]
+disabled = false
+only_nonzero_diffs = true
+added_style = "gitadd"
+deleted_style = "gitdel"
+format = "([+$added]($added_style) )([-$deleted]($deleted_style) )"
+
+# --- left: toolchain --------------------------------------------------------
+# Word labels instead of devicons: they survive any font and read faster.
+
+[nodejs]
+symbol = "node "
+format = "([$symbol](lang)[$version](lang_dim) )"
+
+[python]
+symbol = "py "
+format = "([$symbol](lang)[$version](lang_dim)[( $virtualenv)](ctx_dim) )"
+
+[golang]
+symbol = "go "
+format = "([$symbol](lang)[$version](lang_dim) )"
+
+[rust]
+symbol = "rs "
+format = "([$symbol](lang)[$version](lang_dim) )"
+
+[java]
+symbol = "java "
+format = "([$symbol](lang)[$version](lang_dim) )"
+
+[lua]
+symbol = "lua "
+format = "([$symbol](lang)[$version](lang_dim) )"
+
+[ruby]
+symbol = "rb "
+format = "([$symbol](lang)[$version](lang_dim) )"
+
+[php]
+symbol = "php "
+format = "([$symbol](lang)[$version](lang_dim) )"
+
+[package]
+symbol = "pkg "
+display_private = true
+format = "([$symbol](lang)[$version](lang_dim) )"
+
+# --- left: deployment context ----------------------------------------------
+
+[docker_context]
+symbol = "docker "
+only_with_files = true
+format = "([$symbol](ctx)[$context](ctx_dim) )"
+
+# Scoped to repositories that actually contain manifests, so it costs nothing
+# in an ordinary directory.
+[kubernetes]
+disabled = false
+symbol = "k8s "
+format = "([$symbol](ctx)[$context](ctx_dim)[( $namespace)](ctx_dim) )"
+detect_files = ["Chart.yaml", "skaffold.yaml", "kustomization.yaml"]
+detect_folders = ["k8s", "kubernetes", "manifests", "helm"]
+
+[aws]
+symbol = "aws "
+format = "([$symbol](ctx)[$profile](ctx_dim) )"
+
+# Azure subscription display names are long enough to swamp the prompt
+# ("Visual Studio Enterprise Subscription" is 37 characters), so it stays off.
+[azure]
+disabled = true
+
+# --- the rule ---------------------------------------------------------------
+
+[fill]
+symbol = "─"
+style = "rule"
+
+# --- right: transient state -------------------------------------------------
+
+[jobs]
+symbol = "jobs "
+number_threshold = 1
+format = "( [$symbol](ctx)[$number](ctx_dim))"
+
+[status]
+disabled = false
+symbol = "×"
+format = " [$symbol$status](bold err)"
+map_symbol = false
+pipestatus = true
+pipestatus_separator = "[|](rule)"
+pipestatus_format = " [$symbol$pipestatus](bold err)"
+
+# The character module already appends a trailing space via its own
+# format ("$symbol "), so the symbols below must not carry one.
+
+[cmd_duration]
+min_time = 500
+show_milliseconds = false
+format = " [$duration](dur)"
+
+[time]
+disabled = false
+format = " [$time](clock)"
+time_format = "%H:%M"
+
+[character]
+success_symbol = "[❯](caret)"
+error_symbol = "[❯](caret_err)"
+vimcmd_symbol = "[❮](vim)"
+vimcmd_replace_one_symbol = "[❮](gitstate)"
+vimcmd_replace_symbol = "[❮](gitstate)"
+vimcmd_visual_symbol = "[❮](gitadd)"
+
+[palettes.nightshade]
+dir = "#dcc9f2"
+dir_dim = "#7a6c90"
+branch = "#c7a9f0"
+gitstate = "#e9cf9e"
+gitadd = "#a3dcc0"
+gitdel = "#f08a9c"
+lang = "#a6c6ee"
+lang_dim = "#7a6c90"
+ctx = "#a294b8"
+ctx_dim = "#7a6c90"
+rule = "#332843"
+err = "#f08a9c"
+dur = "#e9cf9e"
+clock = "#8b7ea1"
+caret = "#c7a9f0"
+caret_err = "#f08a9c"
+vim = "#a3dcc0"

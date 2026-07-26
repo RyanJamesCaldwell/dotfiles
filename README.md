@@ -45,25 +45,67 @@ The parity table mapping every `Brewfile` entry to its Linux equivalent lives in
 
 ## Theming
 
-Theme selection is shared across Zsh/Starship, Neovim, and WezTerm through `~/.config/theme/current`.
+A theme is one word that repaints everything: the Starship prompt, Neovim, and
+WezTerm all follow `~/.config/theme/current`.
 
-- **Available themes**: `sakura_night` (default), `ashfall`, `rosepine`
-- **From shell**:
+| Theme | Look |
+| --- | --- |
+| `nightshade` | Default. Deep plum under mint, gold and lilac |
+| `aurora` | Cold navy sky lit by pastel green, pink and ice blue |
+| `abyss` | Deep water. Teal-navy with aqua, coral and seafoam |
+| `rosepine` | Rosé Pine Moon |
+
+The first three are cut from one template, so they share an identical
+prompt silhouette and highlight set — switching between them changes colour
+without moving anything. Each pairs a softly tinted (never near-black) base with
+five distinct pastel hues, so syntax stays legible at low contrast:
+
+```
+~/dev/dotfiles main +234 -29 lua v5.4.7 ──────────── jobs 2 ×130 12s 23:39
+❯
+```
+
+Identity and context sit on the left, a hairline rule pushes transient state
+(failed exit codes, background jobs, command duration, clock) to the right edge,
+and the second line holds nothing but the caret. Git is reduced to the branch
+plus the working-tree churn (`+234 -29`) rather than a row of per-file status
+flags, and there are no devicons at all, so the prompt reads the same over a
+plain SSH session or in any terminal without a patched font.
+
+- **From the shell**:
   - `theme` or `theme current` shows the active theme
-  - `theme list` shows valid themes
-  - `theme pick` opens an fzf picker when available, with a numbered fallback
-  - `theme <sakura_night|ashfall|rosepine>` applies a theme directly
-- **From Neovim**:
-  - `:ThemeSet <sakura_night|ashfall|rosepine>`
-  - `:ThemeToggle` (cycles through all themes)
-- **From WezTerm**: reads `~/.config/theme/current` and applies the matching scheme automatically (`sakura_night`, `ashfall`, or `rose-pine` for `rosepine`)
+  - `theme list` lists every name
+  - `theme preview` renders each prompt inline so you can compare them
+  - `theme pick` opens an fzf picker, with a numbered fallback
+  - `theme <name>` applies a theme
+- **From Neovim**: `:ThemeSet <name>` (with completion) or `:ThemeToggle` to cycle
+- **From WezTerm**: reads the state file and restyles automatically, within ~1s
+
+Changes are persisted, and every already-open shell picks them up on its next
+prompt, so switching in one window follows you everywhere.
+
+Adding a theme means writing a palette, not writing theme files. The Starship
+`.toml` and the Neovim Lua module are generated from a single palette in
+[`tools/gen-themes.py`](tools/gen-themes.py) — run it with no arguments to
+regenerate, `--check` to assert nothing is stale (CI does this), and
+`--wezterm <name>` to print the WezTerm blocks. `AGENTS.md` has the full
+contract.
 
 Theme files live in:
 
-- `dot_config/starship/themes/` for Starship
-- `dot_config/nvim/lua/custom/` for custom Neovim palettes
-- `dot_wezterm.lua` for WezTerm theme mappings and tab bar styling
-If WezTerm is already open, it picks up theme changes automatically (status refresh interval is ~1s).
+- `dot_config/starship/themes/<name>.toml` for the prompt
+- `dot_config/nvim/lua/custom/<name>.lua` for the editor
+- `dot_wezterm.lua` for the terminal palette and tab bar
+
+Adding a theme means touching all three plus `THEME_CHOICES` in `dot_zshrc.tmpl`
+and `theme_order` in `dot_config/nvim/init.lua`; `verify-dotfiles.sh` asserts
+that every registered name resolves in each place. Those three also share
+their 16-colour ramp between the Neovim `:terminal` palette and the WezTerm
+scheme, so a shell inside the editor matches a bare terminal pane exactly.
+
+`azure` is disabled in these themes because subscription display names are
+long enough to swamp the prompt; set `disabled = false` in the theme file to opt
+back in.
 
 ## Updating Configs
 
@@ -75,7 +117,7 @@ Use `chezmoi diff` to inspect changes before applying, and `chezmoi doctor` to v
 
 ## Verifying an Install
 
-`.github/scripts/verify-dotfiles.sh` checks that a bootstrapped machine matches this repository: managed files exist, the platform-specific `~/.zshrc` rendered correctly, core commands resolve, `chezmoi verify` reports no drift, and an interactive Zsh exposes the `theme`/`profile`/`wt` helpers.
+`.github/scripts/verify-dotfiles.sh` checks that a bootstrapped machine matches this repository: managed files exist, the platform-specific `~/.zshrc` rendered correctly, core commands resolve, `chezmoi verify` reports no drift, every Starship theme parses, every theme resolves in Starship, WezTerm and Neovim alike, and an interactive Zsh exposes the `theme`/`profile`/`wt` helpers.
 
 ```bash
 .github/scripts/verify-dotfiles.sh "$PWD"

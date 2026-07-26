@@ -4,54 +4,78 @@ local wezterm = require("wezterm")
 -- This will hold the configuration.
 local config = wezterm.config_builder()
 local theme_state_file = wezterm.home_dir .. "/.config/theme/current"
-local default_theme = "sakura_night"
+local default_theme = "nightshade"
 
 local custom_color_schemes = {
-	sakura_night = {
-		foreground = "#f7e9f3",
-		background = "#0b1020",
-		cursor_bg = "#f3b0cc",
-		cursor_fg = "#0b1020",
-		cursor_border = "#f3b0cc",
-		selection_fg = "#f7e9f3",
-		selection_bg = "#1a2740",
-		ansi = { "#0b1020", "#d873a4", "#a3c8ea", "#e98db7", "#7fadd8", "#b7a5de", "#a3c8ea", "#ddcddd" },
-		brights = { "#324267", "#c15b90", "#a3c8ea", "#e98db7", "#7fadd8", "#b7a5de", "#a3c8ea", "#f7e9f3" },
+	-- Each ramp below is copied verbatim from the matching
+	-- dot_config/nvim/lua/custom/<theme>.lua, so a shell inside Neovim and a bare
+	-- WezTerm pane render identical colours.
+	nightshade = {
+		foreground = "#d6c9e6",
+		background = "#1a1324",
+		cursor_bg = "#c7a9f0",
+		cursor_fg = "#1a1324",
+		cursor_border = "#c7a9f0",
+		selection_fg = "#f2eaf8",
+		selection_bg = "#3a2e51",
+		ansi = { "#2d2340", "#f08a9c", "#a3dcc0", "#e9cf9e", "#a6c6ee", "#c7a9f0", "#8fd6e8", "#d6c9e6" },
+		brights = { "#4b3d68", "#f4a3b2", "#b8e8cf", "#f2dcb4", "#bcd6f4", "#eba8c8", "#a8e2f0", "#f2eaf8" },
 	},
-	ashfall = {
-		foreground = "#fbedbd",
-		background = "#0c0e14",
-		cursor_bg = "#d34e37",
-		cursor_fg = "#0c0e14",
-		cursor_border = "#d34e37",
-		selection_fg = "#fbedbd",
-		selection_bg = "#252d35",
-		ansi = { "#0c0e14", "#ed4e35", "#90aea0", "#c14736", "#688581", "#954337", "#90aea0", "#d1d3b2" },
-		brights = { "#2a343d", "#d34e37", "#90aea0", "#c14736", "#688581", "#954337", "#90aea0", "#fbedbd" },
+	aurora = {
+		foreground = "#cbdcec",
+		background = "#0f1620",
+		cursor_bg = "#a8b4f0",
+		cursor_fg = "#0f1620",
+		cursor_border = "#a8b4f0",
+		selection_fg = "#eaf2fa",
+		selection_bg = "#2a394d",
+		ansi = { "#1e2a3a", "#f28ba8", "#8fe6c0", "#f0d9a0", "#a8b4f0", "#f0a8d8", "#8fd8f0", "#cbdcec" },
+		brights = { "#3b4d66", "#f5a3ba", "#a8f0d0", "#f5e4b8", "#bcc4f5", "#f5bce4", "#a8e4f5", "#eaf2fa" },
+	},
+	abyss = {
+		foreground = "#c5dce6",
+		background = "#101c24",
+		cursor_bg = "#7fd4d4",
+		cursor_fg = "#101c24",
+		cursor_border = "#7fd4d4",
+		selection_fg = "#e8f4f8",
+		selection_bg = "#2a4150",
+		ansi = { "#1e313e", "#f58b8b", "#9ae0c0", "#f2cf9c", "#a9c4f0", "#e0a8d8", "#7fd4d4", "#c5dce6" },
+		brights = { "#395667", "#f7a3a3", "#b0e8ce", "#f5dab4", "#bcd4f5", "#eabce4", "#9ae0e0", "#e8f4f8" },
 	},
 }
-
 local theme_spec = {
-	sakura_night = {
-		color_scheme = "sakura_night",
+	nightshade = {
+		color_scheme = "nightshade",
 		tab_bar = {
-			background = "#0b1020",
-			active_tab = { bg_color = "#e98db7", fg_color = "#0b1020", intensity = "Bold" },
-			inactive_tab = { bg_color = "#111a2d", fg_color = "#6f81a8" },
-			inactive_tab_hover = { bg_color = "#243456", fg_color = "#f7e9f3", italic = true },
-			new_tab = { bg_color = "#0b1020", fg_color = "#6f81a8" },
-			new_tab_hover = { bg_color = "#243456", fg_color = "#a3c8ea" },
+			background = "#1a1324",
+			active_tab = { bg_color = "#c7a9f0", fg_color = "#1a1324", intensity = "Bold" },
+			inactive_tab = { bg_color = "#221a2e", fg_color = "#7a6c90" },
+			inactive_tab_hover = { bg_color = "#3a2e51", fg_color = "#f2eaf8", italic = true },
+			new_tab = { bg_color = "#1a1324", fg_color = "#7a6c90" },
+			new_tab_hover = { bg_color = "#3a2e51", fg_color = "#eba8c8" },
 		},
 	},
-	ashfall = {
-		color_scheme = "ashfall",
+	aurora = {
+		color_scheme = "aurora",
 		tab_bar = {
-			background = "#0c0e14",
-			active_tab = { bg_color = "#90aea0", fg_color = "#0c0e14", intensity = "Bold" },
-			inactive_tab = { bg_color = "#141a20", fg_color = "#665855" },
-			inactive_tab_hover = { bg_color = "#252d35", fg_color = "#fbedbd", italic = true },
-			new_tab = { bg_color = "#0c0e14", fg_color = "#665855" },
-			new_tab_hover = { bg_color = "#252d35", fg_color = "#ed4e35" },
+			background = "#0f1620",
+			active_tab = { bg_color = "#a8b4f0", fg_color = "#0f1620", intensity = "Bold" },
+			inactive_tab = { bg_color = "#151e2b", fg_color = "#6b7f96" },
+			inactive_tab_hover = { bg_color = "#2a394d", fg_color = "#eaf2fa", italic = true },
+			new_tab = { bg_color = "#0f1620", fg_color = "#6b7f96" },
+			new_tab_hover = { bg_color = "#2a394d", fg_color = "#f0a8d8" },
+		},
+	},
+	abyss = {
+		color_scheme = "abyss",
+		tab_bar = {
+			background = "#101c24",
+			active_tab = { bg_color = "#7fd4d4", fg_color = "#101c24", intensity = "Bold" },
+			inactive_tab = { bg_color = "#16252f", fg_color = "#667e8c" },
+			inactive_tab_hover = { bg_color = "#2a4150", fg_color = "#e8f4f8", italic = true },
+			new_tab = { bg_color = "#101c24", fg_color = "#667e8c" },
+			new_tab_hover = { bg_color = "#2a4150", fg_color = "#f0a898" },
 		},
 	},
 	rosepine = {
@@ -66,7 +90,6 @@ local theme_spec = {
 		},
 	},
 }
-
 local function normalize_theme_name(theme_name)
 	if theme_spec[theme_name] then
 		return theme_name
