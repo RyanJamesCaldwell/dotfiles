@@ -36,6 +36,8 @@ Configuration is kept as close to identical as the platforms allow. Differences 
 
 The parity table mapping every `Brewfile` entry to its Linux equivalent lives in a comment block inside `install.sh`.
 
+`oven-sh/bun` and `stripe/stripe-cli` are third-party taps, and Homebrew refuses to load formulae from non-official taps unless they are trusted. Their `Brewfile` entries carry `trusted: true`, so `brew bundle` records the trust before installing and no manual `brew trust` step is needed.
+
 ## Highlights
 
 - **Shell**: Zsh with oh-my-zsh, fzf integration, starship prompt, lazy nvm/asdf loading, aliases tuned for git, and `wt` sourced from `~/.config/wt/wt.zsh`.
