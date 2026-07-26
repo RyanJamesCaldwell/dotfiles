@@ -35,6 +35,9 @@ jobs:
           bash -n install.sh
           bash -n .github/scripts/verify-dotfiles.sh
 
+      - name: Check generated themes are up to date
+        run: ./tools/gen-themes.py --check
+
       - name: Validate Brewfile
         run: |
           ruby -c Brewfile

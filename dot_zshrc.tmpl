@@ -206,56 +206,88 @@ fi
 set -o vi
 tabs -2
 
-# Shared theme selection for terminal + Neovim.
-THEME_CHOICES=(sakura_night ashfall rosepine)
+# Shared theme selection for terminal + Neovim + WezTerm.
+# Every name below is a full theme: it repaints the prompt, the editor and the
+# terminal together. Adding one means adding a Starship TOML under
+# dot_config/starship/themes/, a Neovim module under dot_config/nvim/lua/custom/,
+# a WezTerm entry in dot_wezterm.lua, and the name here.
+THEME_CHOICES=(nightshade aurora abyss rosepine)
 THEME_STATE_DIR="$HOME/.config/theme"
 THEME_STATE_FILE="$THEME_STATE_DIR/current"
 STARSHIP_THEME_DIR="$HOME/.config/starship/themes"
-if [[ -r "$THEME_STATE_FILE" ]]; then
-  export NVIM_THEME="$(<"$THEME_STATE_FILE")"
-else
-  export NVIM_THEME="sakura_night"
-fi
-
-_set_starship_config_for_theme() {
-  local theme_name="$1"
-  local config_path
-  case "$theme_name" in
-    sakura_night) config_path="$STARSHIP_THEME_DIR/sakura_night.toml" ;;
-    ashfall) config_path="$STARSHIP_THEME_DIR/ashfall.toml" ;;
-    rosepine) config_path="$STARSHIP_THEME_DIR/rosepine.toml" ;;
-    *) config_path="$HOME/.config/starship.toml" ;;
-  esac
-
-  if [[ -r "$config_path" ]]; then
-    export STARSHIP_CONFIG="$config_path"
-  else
-    export STARSHIP_CONFIG="$HOME/.config/starship.toml"
-  fi
-}
-
-_set_starship_config_for_theme "$NVIM_THEME"
 
 _is_valid_theme() {
   _value_in_list "$1" "${THEME_CHOICES[@]}"
 }
 
-_print_theme_usage() {
-  echo "Usage: theme <sakura_night|ashfall|rosepine|current|list|pick>"
+if [[ -r "$THEME_STATE_FILE" ]]; then
+  export NVIM_THEME="$(<"$THEME_STATE_FILE")"
+else
+  export NVIM_THEME="$THEME_CHOICES[1]"
+fi
+# A state file written before a theme was retired still names it, so validate
+# before trusting it. Falling back in memory rather than rewriting the file
+# leaves the choice intact for any shell that still recognises the name.
+_is_valid_theme "$NVIM_THEME" || export NVIM_THEME="$THEME_CHOICES[1]"
+
+# Theme names map one-to-one onto files in $STARSHIP_THEME_DIR. Validating the
+# name before building the path keeps a stale or corrupted state file from
+# pointing STARSHIP_CONFIG somewhere unexpected.
+_set_starship_config_for_theme() {
+  local theme_name="$1"
+  local config_path="$HOME/.config/starship.toml"
+
+  if _is_valid_theme "$theme_name" && [[ -r "$STARSHIP_THEME_DIR/$theme_name.toml" ]]; then
+    config_path="$STARSHIP_THEME_DIR/$theme_name.toml"
+  fi
+
+  export STARSHIP_CONFIG="$config_path"
 }
 
+_set_starship_config_for_theme "$NVIM_THEME"
+
+_print_theme_usage() {
+  echo "Usage: theme <name|current|list|preview|pick>"
+  echo "  themes: ${THEME_CHOICES[*]}"
+  echo "  each one repaints the prompt, Neovim and WezTerm together"
+}
+
+# Picks up a theme change made in another shell or from inside Neovim.
 _sync_theme_from_state() {
-  [[ -r "$THEME_STATE_FILE" ]] || return 0
-  local saved
-  saved="$(<"$THEME_STATE_FILE")"
-  case "$saved" in
-    sakura_night|ashfall|rosepine)
-      if [[ "$saved" != "$NVIM_THEME" ]]; then
-        export NVIM_THEME="$saved"
-        _set_starship_config_for_theme "$NVIM_THEME"
-      fi
-      ;;
-  esac
+  local saved="$NVIM_THEME"
+  if [[ -r "$THEME_STATE_FILE" ]]; then
+    saved="$(<"$THEME_STATE_FILE")"
+  fi
+  _is_valid_theme "$saved" || saved="$NVIM_THEME"
+
+  if [[ "$saved" != "$NVIM_THEME" ]]; then
+    export NVIM_THEME="$saved"
+    _set_starship_config_for_theme "$saved"
+  fi
+}
+
+# Renders every theme's prompt with representative state so they can be
+# compared side by side. STARSHIP_SHELL has to name a real shell or Starship
+# silently skips custom modules; `sh` also avoids zsh's %{...%} escapes.
+_preview_themes() {
+  if ! command -v starship >/dev/null 2>&1; then
+    echo "starship is not installed; nothing to preview." >&2
+    return 1
+  fi
+
+  local width=$(( ${COLUMNS:-100} - 4 ))
+  (( width < 60 )) && width=60
+
+  local name config_path
+  for name in "${THEME_CHOICES[@]}"; do
+    config_path="$STARSHIP_THEME_DIR/$name.toml"
+    [[ -r "$config_path" ]] || continue
+    echo "  $name"
+    STARSHIP_SHELL=sh STARSHIP_CONFIG="$config_path" starship prompt \
+      --status=0 --cmd-duration=3400 --jobs=0 --terminal-width="$width" 2>/dev/null |
+      sed 's/^/  /'
+    echo
+  done
 }
 
 theme() {
@@ -271,6 +303,10 @@ theme() {
     list|ls)
       printf '%s\n' "${THEME_CHOICES[@]}"
       return 0
+      ;;
+    preview|demo)
+      _preview_themes
+      return $?
       ;;
     pick|select)
       local picked

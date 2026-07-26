@@ -47,16 +47,28 @@
 - To add a new keymap, append it to the appropriate labeled section in `init.lua`. No separate keymaps file exists.
 - Custom plugins file (`lua/custom/plugins/init.lua`) is the right place for new plugin specs; kickstart plugins under `lua/kickstart/plugins/` should not be modified unless overriding upstream defaults.
 
+## Themes (`tools/gen-themes.py`)
+- A theme is **not** a colour scheme for one program. Each name in the family is a Starship prompt, a Neovim colorscheme and a WezTerm palette that must agree with each other.
+- **The theme files under `dot_config/starship/themes/` and `dot_config/nvim/lua/custom/` are generated. Never hand-edit them** — the next run of the generator silently reverts your change, and CI fails the `--check` step in the meantime.
+- To change or add a theme, edit `PALETTES` in `tools/gen-themes.py`, then run `./tools/gen-themes.py`.
+- Design rules that are load-bearing, not decoration: use a **softly tinted background** (around `#1a1324` in lightness — never near-black) and **five clearly different pastel hues** for `str`/`num`/`kw`/`fn`/`typ`. Monochrome palettes and near-black bases have both been tried and rejected as unreadable.
+- Only `dir`, `rule` and `clock` are prompt-specific; every other prompt colour is derived from the editor palette by `PROMPT_FROM_PALETTE`, so define each colour once. Omitting the `prompt` block falls back to blended defaults.
+- The generator cannot reach four places, so register a new name by hand in: `THEME_CHOICES` (`dot_zshrc.tmpl`), `theme_order` (`dot_config/nvim/init.lua`), both tables in `dot_wezterm.lua` (`./tools/gen-themes.py --wezterm <name>` prints them), and the README table. `verify-dotfiles.sh` asserts the name resolves in each.
+- The 16-colour `term` ramp is shared between Neovim's `:terminal` and the WezTerm scheme so a shell inside the editor matches a bare pane; `--check` verifies the two have not drifted.
+- `theme <name>` / `theme pick` / `theme preview` switch themes at runtime; the choice persists in `~/.config/theme/current` and every open shell picks it up on its next prompt.
+
 ## Build, Test, and Development Commands
 - `chezmoi diff` — inspect pending template changes before applying them to your home directory.
 - `chezmoi apply` — render the templates into place after you are satisfied with the diff.
 - `./install.sh` — bootstrap a machine (macOS or Debian/Ubuntu). `./install.sh --minimal` skips GUI apps, fonts, language-runtime managers, and heavy services.
 - `brew bundle --file Brewfile` — sync Homebrew formulas and casks defined for this setup (macOS only).
 - `.github/scripts/verify-dotfiles.sh` — assert the applied configuration is correct on the current machine.
-- `nvim --headless "+Lazy! sync" +qa` — validate that plugin specs resolve without interactive prompts after edits.
+- `./tools/gen-themes.py` — regenerate the theme files; `--check` asserts the committed copies are current (CI runs this).
+- `nvim --headless "+Lazy! sync" +qa` — validate that plugin specs resolve without interactive prompts after edits. Note this rewrites `dot_config/nvim/lazy-lock.json`; revert it unless a plugin bump is intended.
 
 ## Coding Style & Naming Conventions
-- Lua files follow `dot_config/nvim/dot_stylua.toml`: two-space indentation, Unix line endings, and preferred single quotes; run `stylua --config-path dot_config/nvim/dot_stylua.toml dot_config/nvim/**/*.lua` before committing.
+- Lua files follow `dot_config/nvim/dot_stylua.toml`: two-space indentation, Unix line endings, and preferred single quotes; run `stylua --config-path dot_config/nvim/dot_stylua.toml dot_config/nvim/lua/**/*.lua` before committing.
+- **`dot_config/nvim/init.lua` is deliberately exempt from stylua.** It is tab-indented and predates the rest of the config. CI scopes its format check to the git pathspec `dot_config/nvim/**/*.lua`, which resolves to files under `lua/` only — confirm with `git ls-files -- 'dot_config/nvim/**/*.lua'`. Never reformat `init.lua`: it produces a six-figure diff that buries the real change.
 - Keep module names lowercase with words separated by underscores (e.g., `custom.plugins.lsp`), and mirror directory names when introducing new modules.
 - For shell snippets in dotfiles, align indentation with two spaces and avoid trailing whitespace to prevent noisy diffs on target systems.
 
