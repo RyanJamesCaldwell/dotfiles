@@ -176,11 +176,15 @@ check_zsh_output "default theme" 'theme current | head -n1' 'Current theme: saku
 check_zsh_output "theme list" 'theme list | tr "\n" " " | sed "s/ $//"' 'sakura_night ashfall rosepine'
 check_zsh_output "profile defaults to personal" 'profile current | head -n1' 'Current profile: personal'
 check_zsh_output "starship prompt is initialised" 'print -r -- "$STARSHIP_SHELL"' 'zsh'
-# zoxide binds `cd` as a function in recent releases and as an alias in older
-# ones (Ubuntu 24.04 ships 0.9.3), so assert the override rather than its shape.
-check_zsh_output "zoxide overrides cd" \
-  'whence -w __zoxide_z >/dev/null 2>&1 && [[ "$(whence -w cd)" != "cd: builtin" ]] && print -r -- overridden || print -r -- "not overridden: $(whence -w cd)"' \
-  'overridden'
+# zoxide binds `cd` differently across versions: a function in 0.4.x and 1.x, an
+# alias to __zoxide_z in 0.9.x. Assert that cd is overridden *by zoxide* rather
+# than pinning any one release's shape or internal symbol names.
+check_zsh_output "zoxide overrides cd" '
+case "$(whence -w cd)" in
+  (*function) [[ "${functions[cd]}" == *zoxide* ]] && print -r -- overridden || print -r -- "cd is a non-zoxide function" ;;
+  (*alias) [[ "${aliases[cd]}" == *zoxide* ]] && print -r -- overridden || print -r -- "cd is a non-zoxide alias" ;;
+  (*) print -r -- "not overridden: $(whence -w cd)" ;;
+esac' 'overridden'
 check_zsh_output "l alias is defined" 'whence -w l' 'l: alias'
 check_zsh_output "zsh-startup-profile helper exists" 'whence -w zsh-startup-profile' 'zsh-startup-profile: function'
 check_zsh_output "wt helpers are sourced" 'whence -w wt' 'wt: function'

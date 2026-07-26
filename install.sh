@@ -639,13 +639,18 @@ ensure_linux_wezterm() {
 
   # WezTerm names its .deb assets after the distro version rather than the
   # codename (wezterm-<tag>.Ubuntu22.04.arm64.deb) and only publishes a handful
-  # of them, so fall back to the newest release that does exist.
+  # of them, so fall back to the closest release that does exist.
   local -a candidates=()
   case "$distro_id" in
-    debian) [[ -n "$version_id" ]] && candidates+=("Debian${version_id%%.*}${arch_suffix}") ;;
-    *) [[ -n "$version_id" ]] && candidates+=("Ubuntu${version_id}${arch_suffix}") ;;
+    debian)
+      [[ -n "$version_id" ]] && candidates+=("Debian${version_id%%.*}${arch_suffix}")
+      candidates+=("Debian12${arch_suffix}" "Ubuntu22.04${arch_suffix}")
+      ;;
+    *)
+      [[ -n "$version_id" ]] && candidates+=("Ubuntu${version_id}${arch_suffix}")
+      candidates+=("Ubuntu22.04${arch_suffix}" "Debian12${arch_suffix}")
+      ;;
   esac
-  candidates+=("Ubuntu22.04${arch_suffix}" "Debian12${arch_suffix}")
 
   tmp_dir="$(mktemp -d)"
   # shellcheck disable=SC2064
@@ -663,6 +668,10 @@ ensure_linux_wezterm() {
   if [[ -z "$downloaded" ]]; then
     warn "No WezTerm .deb is published for ${distro_id:-linux} ${version_id:-?} on $(uname -m)."
     return 1
+  fi
+
+  if [[ "$downloaded" != "${candidates[0]}" ]]; then
+    warn "WezTerm publishes no build for ${distro_id:-linux} ${version_id:-?} on $(uname -m); installing the ${downloaded} package instead."
   fi
 
   log "Installing WezTerm ${tag} (${downloaded})"
