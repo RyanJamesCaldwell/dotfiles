@@ -1,10 +1,33 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- Root dotfiles mirror their destination names: `dot_zshrc`, `dot_gitconfig`, and `Brewfile` provision the shell, git, and macOS packages.
+- Root dotfiles mirror their destination names: `dot_zshrc.tmpl`, `dot_gitconfig`, and `Brewfile` provision the shell, git, and macOS packages.
+- `install.sh` bootstraps both supported platforms. It dispatches on `uname -s`: macOS goes through Homebrew/`Brewfile`, Linux goes through apt plus a set of GitHub-release binaries installed into `~/.local/bin`. The Brewfile-to-apt parity table lives in a comment block above the Linux section of `install.sh`.
+- `.github/scripts/verify-dotfiles.sh` asserts that a bootstrapped machine matches this repository; CI runs it on Ubuntu and it can be run locally on either platform.
 - The Neovim setup lives in `dot_config/nvim`, with `init.lua` loading Kickstart defaults and local tweaks.
 - Reusable Lua logic is grouped under `dot_config/nvim/lua/kickstart/`, while personal overrides stay in `dot_config/nvim/lua/custom/plugins/init.lua` so they are easy to extend or disable.
 - Plugin state is pinned in `dot_config/nvim/lazy-lock.json`; update this file whenever plugin versions change to keep machines aligned.
+
+## Cross-Platform Rules
+- macOS is the reference platform. Any change to `dot_zshrc.tmpl` must keep the **rendered macOS output byte-identical** unless the change is explicitly about macOS.
+- Platform differences are expressed with chezmoi conditionals on `.chezmoi.os` (`darwin` vs everything else), not with runtime `$OSTYPE` checks, so each machine gets a clean single-platform file.
+- Use the `{{- if eq .chezmoi.os "darwin" }}` / `{{- else }}` / `{{- end }}` form (leading dash only). Trailing-dash trimming (`-}}`) also eats the indentation of the next line.
+- Verify a template change by rendering `main` and your branch into throwaway destinations and diffing them:
+  ```bash
+  render() { # render <source-dir> <out-dir>
+    rm -rf "$2"; mkdir -p "$2"/{home,cache,state}
+    printf 'data:\n  profile: personal\n' > "$2/config.yaml"
+    chezmoi --no-tty --source="$1" --destination="$2/home" --cache="$2/cache" \
+      --persistent-state="$2/state/chezmoi.boltdb" --config="$2/config.yaml" \
+      --refresh-externals=never apply --keep-going
+  }
+  git worktree add /tmp/dotfiles-main main
+  render /tmp/dotfiles-main /tmp/render-before
+  render "$PWD" /tmp/render-after
+  diff -r -x .git /tmp/render-before/home /tmp/render-after/home
+  ```
+- Tools that only exist on macOS simply are not installed on Linux; the shell config must degrade gracefully rather than error at startup.
+
 
 ## Neovim Config Details (`dot_config/nvim/init.lua`)
 - This is a single large file (~68 KB) containing all options, keymaps, and plugin specs — **do not explore the file with broad searches; use targeted Grep for specific sections**.
@@ -27,7 +50,9 @@
 ## Build, Test, and Development Commands
 - `chezmoi diff` — inspect pending template changes before applying them to your home directory.
 - `chezmoi apply` — render the templates into place after you are satisfied with the diff.
-- `brew bundle --file Brewfile` — sync Homebrew formulas and casks defined for this setup.
+- `./install.sh` — bootstrap a machine (macOS or Debian/Ubuntu). `./install.sh --minimal` skips GUI apps, fonts, language-runtime managers, and heavy services.
+- `brew bundle --file Brewfile` — sync Homebrew formulas and casks defined for this setup (macOS only).
+- `.github/scripts/verify-dotfiles.sh` — assert the applied configuration is correct on the current machine.
 - `nvim --headless "+Lazy! sync" +qa` — validate that plugin specs resolve without interactive prompts after edits.
 
 ## Coding Style & Naming Conventions
@@ -41,6 +66,15 @@
 - After changing `dot_zshrc`/`dot_zshrc.tmpl`, include a reload step in validation instructions (`source ~/.zshrc` or `exec zsh`) before testing shell functions.
 - Use `chezmoi doctor` when introducing new templates to confirm managed paths resolve correctly across hosts.
 - If you touch the Brewfile, execute `brew bundle check --file Brewfile` to verify taps and packages are installable.
+- If you touch `install.sh` or anything it installs, exercise the Linux path end to end in a throwaway container before relying on CI:
+  ```bash
+  docker run --rm -it -v "$PWD:/src:ro" ubuntu:24.04 bash -lc '
+    apt-get update -qq && apt-get install -y -qq sudo git curl ca-certificates >/dev/null
+    useradd -m -s /bin/bash tester && echo "tester ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/tester
+    cp -a /src /home/tester/dotfiles && chown -R tester /home/tester/dotfiles
+    su - tester -c "cd ~/dotfiles && ./install.sh --minimal && .github/scripts/verify-dotfiles.sh ~/dotfiles"'
+  ```
+- CI covers both platforms: the `validate` job does static checks on macOS, and `bootstrap-ubuntu` runs `./install.sh --minimal` twice on `ubuntu-latest` and then `verify-dotfiles.sh`.
 
 ## Agent Workflow
 - When a task explicitly invokes a skill, read that skill's required-input checklist and collect any missing required inputs before making edits.

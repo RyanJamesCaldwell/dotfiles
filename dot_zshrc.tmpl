@@ -51,9 +51,15 @@ _pick_from_values() {
 _notify_terminal() {
   local title="$1"
   local message="$2"
+{{- if eq .chezmoi.os "darwin" }}
   if command -v terminal-notifier >/dev/null 2>&1; then
     terminal-notifier -title "$title" -message "$message" >/dev/null 2>&1
   fi
+{{- else }}
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send "$title" "$message" >/dev/null 2>&1
+  fi
+{{- end }}
 }
 
 zsh-startup-profile() {
@@ -67,7 +73,7 @@ if [[ -n "${CHEZMOI_PROFILE:-}" ]]; then
 elif [[ -s "$HOME/.chezmoi_profile" ]]; then
   profile="$(<"$HOME/.chezmoi_profile")"
 else
-  profile="{{ .profile | default "personal" }}"
+  profile="{{ dig "profile" "personal" . }}"
 fi
 
 if [[ -z "$profile" ]]; then
@@ -84,8 +90,13 @@ export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME=""
 plugins=(git)
 source $ZSH/oh-my-zsh.sh
+{{- if eq .chezmoi.os "darwin" }}
 
 export PNPM_HOME="$HOME/Library/pnpm/pnpm"
+{{- else }}
+
+export PNPM_HOME="${PNPM_HOME:-$HOME/.local/share/pnpm}"
+{{- end }}
 export BUN_INSTALL="$HOME/.bun"
 export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$HOME/.asdf}"
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
@@ -124,8 +135,10 @@ typeset -U path PATH
 path=(
   $PNPM_HOME
   ${NVM_DEFAULT_BIN:+$NVM_DEFAULT_BIN}
+{{- if eq .chezmoi.os "darwin" }}
   /opt/homebrew/bin
   /opt/homebrew/opt/curl/bin
+{{- end }}
   $HOME/.local/bin
   $HOME/go/bin
   $BUN_INSTALL/bin
@@ -136,6 +149,7 @@ export PATH
 unset NVM_DEFAULT_BIN
 
 _asdf_init_file() {
+{{- if eq .chezmoi.os "darwin" }}
   if [[ -f /opt/homebrew/opt/asdf/libexec/asdf.sh ]]; then
     printf '%s\n' /opt/homebrew/opt/asdf/libexec/asdf.sh
     return 0
@@ -151,6 +165,21 @@ _asdf_init_file() {
   fi
 
   return 1
+{{- else }}
+  local candidate
+  for candidate in \
+    "$ASDF_DATA_DIR/asdf.sh" \
+    "$HOME/.asdf/asdf.sh" \
+    /usr/share/asdf-vm/asdf.sh \
+    /opt/asdf-vm/asdf.sh; do
+    if [[ -f "$candidate" ]]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+
+  return 1
+{{- end }}
 }
 
 _load_asdf() {
@@ -160,8 +189,13 @@ _load_asdf() {
   . "$asdf_script"
   __ASDF_LOADED=1
 }
+{{- if eq .chezmoi.os "darwin" }}
 
 if [[ -f /opt/homebrew/opt/asdf/libexec/asdf.sh ]] || command -v asdf >/dev/null 2>&1; then
+{{- else }}
+
+if _asdf_init_file >/dev/null 2>&1 || command -v asdf >/dev/null 2>&1; then
+{{- end }}
   asdf() {
     unfunction asdf 2>/dev/null || true
     _load_asdf >/dev/null 2>&1 || true
@@ -340,15 +374,36 @@ autoload -Uz add-zsh-hook
 add-zsh-hook precmd _sync_theme_from_state
 
 # Aliases
+{{- if eq .chezmoi.os "darwin" }}
 alias la='eza --long --all --git --no-user --icons=auto'
 alias l='eza --long --git --no-user --icons=auto'
+{{- else }}
+if command -v eza >/dev/null 2>&1; then
+  alias la='eza --long --all --git --no-user --icons=auto'
+  alias l='eza --long --git --no-user --icons=auto'
+else
+  alias la='ls --color=auto -lAh'
+  alias l='ls --color=auto -lh'
+fi
+{{- end }}
 alias where='find . -name'
 alias gd='git diff'
 alias gs='git status'
 alias gb='git branch'
 
 if command -v fzf >/dev/null 2>&1; then
+{{- if eq .chezmoi.os "darwin" }}
   source <(fzf --zsh)
+{{- else }}
+  if fzf --zsh >/dev/null 2>&1; then
+    source <(fzf --zsh)
+  else
+    # fzf < 0.48 ships its shell integration as standalone snippets.
+    [[ -r /usr/share/doc/fzf/examples/key-bindings.zsh ]] && source /usr/share/doc/fzf/examples/key-bindings.zsh
+    [[ -r /usr/share/doc/fzf/examples/completion.zsh ]] && source /usr/share/doc/fzf/examples/completion.zsh
+    true
+  fi
+{{- end }}
 fi
 if [[ -s "$NVM_DIR/nvm.sh" ]]; then
   _load_nvm() {
@@ -380,11 +435,19 @@ fi
 [[ -s "$HOME/.local/bin/env" ]] && source "$HOME/.local/bin/env"
 
 export EDITOR='nvim'
+{{- if eq .chezmoi.os "darwin" }}
 [[ -s /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
   source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 [[ -s /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && \
   source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 eval "$(starship init zsh)"
+{{- else }}
+[[ -s /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
+  source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+[[ -s /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && \
+  source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
+{{- end }}
 
 # Load in secrets if the file exists
 [[ -f ~/.secrets ]] && source ~/.secrets
@@ -394,7 +457,11 @@ WT_COPY_SENSITIVE_DOTFILES=1
 [[ -f "$HOME/.config/wt/wt.zsh" ]] && source "$HOME/.config/wt/wt.zsh"
 
 # zoxide for easy `cd`ing (keep at end to avoid doctor warning)
+{{- if eq .chezmoi.os "darwin" }}
 eval "$(zoxide init --cmd cd zsh)"
+{{- else }}
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init --cmd cd zsh)"
+{{- end }}
 
 if [[ -n "${ZSH_STARTUP_PROFILE:-}" ]] && whence -w zprof >/dev/null 2>&1; then
   zprof
