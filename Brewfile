@@ -32,8 +32,10 @@ brew "terminal-notifier"
 brew "zrok"
 brew "zsh-autosuggestions"
 brew "zsh-syntax-highlighting"
-brew "oven-sh/bun/bun"
-brew "stripe/stripe-cli/stripe"
+# Homebrew refuses to load formulae from non-official taps unless they are
+# trusted; `trusted: true` records that here so `brew bundle` works unattended.
+brew "oven-sh/bun/bun", trusted: true
+brew "stripe/stripe-cli/stripe", trusted: true
 brew "zoxide"
 
 cask "1password-cli"

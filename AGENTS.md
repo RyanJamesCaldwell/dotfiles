@@ -66,6 +66,10 @@
 - After changing `dot_zshrc`/`dot_zshrc.tmpl`, include a reload step in validation instructions (`source ~/.zshrc` or `exec zsh`) before testing shell functions.
 - Use `chezmoi doctor` when introducing new templates to confirm managed paths resolve correctly across hosts.
 - If you touch the Brewfile, execute `brew bundle check --file Brewfile` to verify taps and packages are installable.
+- Formulae from non-official taps (`oven-sh/bun`, `stripe/stripe-cli`) need `trusted: true` on their `brew` line, otherwise Homebrew refuses to load them and `brew bundle` aborts. `brew bundle` grants the trust itself, so `brew bundle check` may still warn about them until an install has run once on a fresh machine. To exercise a trust change without touching your real trust store, point `XDG_CONFIG_HOME` at a throwaway directory:
+  ```bash
+  XDG_CONFIG_HOME="$(mktemp -d)" brew bundle install --no-upgrade --file Brewfile
+  ```
 - If you touch `install.sh` or anything it installs, exercise the Linux path end to end in a throwaway container before relying on CI:
   ```bash
   docker run --rm -it -v "$PWD:/src:ro" ubuntu:24.04 bash -lc '
