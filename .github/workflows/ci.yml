@@ -22,12 +22,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Install validation tools
-        run: brew install chezmoi stylua neovim
+        run: brew install chezmoi stylua neovim tree-sitter-cli
 
       - name: Check shell script syntax
         run: |
@@ -78,7 +78,7 @@ jobs:
           xargs -0 stylua --check --config-path dot_config/nvim/dot_stylua.toml < "$changed_lua"
 
       - name: Cache Neovim plugins
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .ci/nvim-data/nvim/lazy
           key: ${{ runner.os }}-lazy-${{ hashFiles('dot_config/nvim/lazy-lock.json') }}
@@ -106,7 +106,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Show environment
         run: |

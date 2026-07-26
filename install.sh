@@ -58,6 +58,16 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
+version_at_least() {
+  local version="$1" required_major="$2" required_minor="$3" required_patch="$4"
+  local major minor patch
+  IFS=. read -r major minor patch <<< "$version"
+  [[ "$major" =~ ^[0-9]+$ && "$minor" =~ ^[0-9]+$ && "$patch" =~ ^[0-9]+$ ]] || return 1
+  ((major > required_major ||
+    (major == required_major && minor > required_minor) ||
+    (major == required_major && minor == required_minor && patch >= required_patch)))
+}
+
 is_minimal() {
   [[ "$MINIMAL" == "1" ]]
 }
@@ -186,6 +196,7 @@ install_macos_packages() {
 #   python@3.x              apt `python3` (extras)
 #   ripgrep                 apt `ripgrep`
 #   terminal-notifier       apt `libnotify-bin` (notify-send)
+#   tree-sitter-cli         GitHub release binary
 #   zrok                    unavailable by default (extras, openziti repo)
 #   zsh-autosuggestions     apt `zsh-autosuggestions`
 #   zsh-syntax-highlighting apt `zsh-syntax-highlighting`
@@ -483,9 +494,10 @@ ensure_linux_fzf() {
 ensure_linux_neovim() {
   local current_version=""
   if command_exists nvim; then
-    current_version="$(nvim --version 2>/dev/null | sed -n '1p' || true)"
+    current_version="$(nvim --version 2>/dev/null |
+      sed -n '1s/^NVIM v\([0-9][0-9.]*\).*$/\1/p' || true)"
   fi
-  if [[ "$current_version" =~ v0\.(9|[1-9][0-9]) || "$current_version" =~ v[1-9][0-9]*\. ]]; then
+  if version_at_least "$current_version" 0 12 0; then
     return 0
   fi
 
@@ -541,6 +553,26 @@ ensure_linux_neovim() {
   mkdir -p "$LOCAL_BIN" || return 1
   ln -sf "${target}/bin/nvim" "${LOCAL_BIN}/nvim" || return 1
   log "Installed Neovim ${tag} to ${target}"
+}
+
+ensure_linux_tree_sitter() {
+  local current_version=""
+  if command_exists tree-sitter; then
+    current_version="$(tree-sitter --version 2>/dev/null |
+      sed -n 's/^tree-sitter \([0-9][0-9.]*\).*$/\1/p' || true)"
+  fi
+  if version_at_least "$current_version" 0 26 1; then
+    return 0
+  fi
+
+  local asset_arch
+  case "$(linux_arch)" in
+    x86_64) asset_arch="x64" ;;
+    aarch64) asset_arch="arm64" ;;
+    *) return 1 ;;
+  esac
+  install_github_archive tree-sitter/tree-sitter \
+    "tree-sitter-cli-linux-${asset_arch}.zip" 'tree-sitter' tree-sitter
 }
 
 ensure_linux_glow() {
@@ -708,6 +740,7 @@ install_linux_packages() {
   ensure_linux_chezmoi
   ensure_linux_starship
   ensure_linux_neovim
+  ensure_linux_tree_sitter
   try_run ensure_linux_zoxide
   try_run ensure_linux_eza
   try_run ensure_linux_delta

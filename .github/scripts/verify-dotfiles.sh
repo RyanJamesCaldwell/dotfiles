@@ -68,6 +68,16 @@ check_command() {
   fi
 }
 
+version_at_least() {
+  local version="$1" required_major="$2" required_minor="$3" required_patch="$4"
+  local major minor patch
+  IFS=. read -r major minor patch <<< "$version"
+  [[ "$major" =~ ^[0-9]+$ && "$minor" =~ ^[0-9]+$ && "$patch" =~ ^[0-9]+$ ]] || return 1
+  ((major > required_major ||
+    (major == required_major && minor > required_minor) ||
+    (major == required_major && minor == required_minor && patch >= required_patch)))
+}
+
 strip_terminal_escapes() {
   LC_ALL=C sed -e $'s/\x1b\\[[0-9;?]*[a-zA-Z]//g' -e $'s/\x1b[()#][A-Za-z0-9]//g' \
     -e $'s/\x1b[A-Za-z=>]//g' -e $'s/\r//g'
@@ -154,9 +164,25 @@ else
 fi
 
 section "Core commands"
-for tool in zsh git curl chezmoi starship nvim fzf jq rg; do
+for tool in zsh git curl chezmoi starship nvim tree-sitter fzf jq rg; do
   check_command "$tool"
 done
+
+NVIM_VERSION="$(nvim --version 2>/dev/null |
+  sed -n '1s/^NVIM v\([0-9][0-9.]*\).*$/\1/p' || true)"
+if version_at_least "$NVIM_VERSION" 0 12 0; then
+  pass "Neovim is at least 0.12.0 (${NVIM_VERSION})"
+else
+  fail "Neovim 0.12.0 or newer is required (found ${NVIM_VERSION:-unknown})"
+fi
+
+TREE_SITTER_VERSION="$(tree-sitter --version 2>/dev/null |
+  sed -n 's/^tree-sitter \([0-9][0-9.]*\).*$/\1/p' || true)"
+if version_at_least "$TREE_SITTER_VERSION" 0 26 1; then
+  pass "Tree-sitter CLI is at least 0.26.1 (${TREE_SITTER_VERSION})"
+else
+  fail "Tree-sitter CLI 0.26.1 or newer is required (found ${TREE_SITTER_VERSION:-unknown})"
+fi
 
 section "chezmoi state"
 # git-repo externals always look "modified" to chezmoi, so they are excluded
