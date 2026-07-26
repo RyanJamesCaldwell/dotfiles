@@ -1112,6 +1112,7 @@ require("lazy").setup({
 	},
 	{ -- Highlight, edit, and navigate code
 		"nvim-treesitter/nvim-treesitter",
+		branch = "main",
 		lazy = false,
 		build = ":TSUpdate",
 		opts = {
@@ -1131,6 +1132,19 @@ require("lazy").setup({
 		},
 		config = function(_, languages)
 			local treesitter = require("nvim-treesitter")
+			if not treesitter.get_installed then
+				require("nvim-treesitter.configs").setup({
+					ensure_installed = languages,
+					auto_install = true,
+					highlight = {
+						enable = true,
+						additional_vim_regex_highlighting = { "ruby" },
+					},
+					indent = { enable = true, disable = { "ruby" } },
+				})
+				return
+			end
+
 			local installed = {}
 			local available = {}
 
