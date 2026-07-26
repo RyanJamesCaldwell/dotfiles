@@ -26,7 +26,7 @@ DOTFILES_MINIMAL=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/
 | Platform | Package source | Notes |
 | --- | --- | --- |
 | macOS | Homebrew (`Brewfile`) | Reference platform; the rendered configuration is unchanged by Linux support. |
-| Ubuntu / Debian | apt + upstream release binaries in `~/.local/bin` | Neovim, starship, chezmoi, lazygit, and (when apt is too old) fzf/eza/delta/gh come from upstream releases. |
+| Ubuntu / Debian | apt + upstream release binaries in `~/.local/bin` | Neovim 0.12+, Tree-sitter CLI 0.26.1+, starship, chezmoi, lazygit, and (when apt is too old) fzf/eza/delta/gh come from upstream releases. |
 
 Configuration is kept as close to identical as the platforms allow. Differences are expressed as chezmoi conditionals on `.chezmoi.os`, so each machine gets a single-platform `~/.zshrc` rather than runtime branching:
 
@@ -41,7 +41,7 @@ The parity table mapping every `Brewfile` entry to its Linux equivalent lives in
 ## Highlights
 
 - **Shell**: Zsh with oh-my-zsh, fzf integration, starship prompt, lazy nvm/asdf loading, aliases tuned for git, and `wt` sourced from `~/.config/wt/wt.zsh`.
-- **Editor**: Kickstart-based Neovim setup with Stylua formatting and lazily-loaded plugins.
+- **Editor**: Neovim 0.12+ with a Kickstart-based setup, Tree-sitter highlighting/indentation, Stylua formatting, and lazily-loaded plugins.
 - **Terminal**: WezTerm configuration for pane-focused workflows, rose-pine colors, and JetBrainsMono Nerd Font.
 - **Packages**: Brewfile defines CLI tools (asdf, gh, ripgrep, etc.) and GUI apps (WezTerm, ngrok, 1Password CLI).
 
