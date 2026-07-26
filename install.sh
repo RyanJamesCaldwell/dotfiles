@@ -628,20 +628,44 @@ ensure_linux_wezterm() {
   command_exists wezterm && return 0
   [[ "$LINUX_PKG_MANAGER" == "apt" ]] || return 0
 
-  local tag tmp_dir codename
+  local tag tmp_dir distro_id version_id arch_suffix
   tag="$(github_latest_tag wez/wezterm)" || return 1
-  codename="$( (. /etc/os-release 2>/dev/null && printf '%s\n' "${VERSION_CODENAME:-}") || true)"
-  [[ -n "$codename" ]] || return 1
+
+  distro_id="$( (. /etc/os-release 2>/dev/null && printf '%s\n' "${ID:-}") || true)"
+  version_id="$( (. /etc/os-release 2>/dev/null && printf '%s\n' "${VERSION_ID:-}") || true)"
+
+  arch_suffix=""
+  [[ "$(linux_arch)" == "aarch64" ]] && arch_suffix=".arm64"
+
+  # WezTerm names its .deb assets after the distro version rather than the
+  # codename (wezterm-<tag>.Ubuntu22.04.arm64.deb) and only publishes a handful
+  # of them, so fall back to the newest release that does exist.
+  local -a candidates=()
+  case "$distro_id" in
+    debian) [[ -n "$version_id" ]] && candidates+=("Debian${version_id%%.*}${arch_suffix}") ;;
+    *) [[ -n "$version_id" ]] && candidates+=("Ubuntu${version_id}${arch_suffix}") ;;
+  esac
+  candidates+=("Ubuntu22.04${arch_suffix}" "Debian12${arch_suffix}")
 
   tmp_dir="$(mktemp -d)"
   # shellcheck disable=SC2064
   trap "rm -rf '$tmp_dir'" RETURN
 
-  curl -fsSL "https://github.com/wez/wezterm/releases/download/${tag}/wezterm-${tag}.Ubuntu${codename}.deb" \
-    -o "${tmp_dir}/wezterm.deb" ||
-    curl -fsSL "https://github.com/wez/wezterm/releases/download/${tag}/wezterm-${tag}.Ubuntu22.04.deb" \
-      -o "${tmp_dir}/wezterm.deb" || return 1
+  local candidate downloaded=""
+  for candidate in "${candidates[@]}"; do
+    if curl -fsSL "https://github.com/wez/wezterm/releases/download/${tag}/wezterm-${tag}.${candidate}.deb" \
+      -o "${tmp_dir}/wezterm.deb"; then
+      downloaded="$candidate"
+      break
+    fi
+  done
 
+  if [[ -z "$downloaded" ]]; then
+    warn "No WezTerm .deb is published for ${distro_id:-linux} ${version_id:-?} on $(uname -m)."
+    return 1
+  fi
+
+  log "Installing WezTerm ${tag} (${downloaded})"
   apt_get install -y "${tmp_dir}/wezterm.deb"
 }
 
