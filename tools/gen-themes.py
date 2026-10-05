@@ -131,7 +131,7 @@ TQ = '"' * 3
 
 STARSHIP_BODY = """
 add_newline = true
-command_timeout = 1000
+command_timeout = 3000
 palette = "@name@"
 
 # Line 1: identity and context, left aligned.

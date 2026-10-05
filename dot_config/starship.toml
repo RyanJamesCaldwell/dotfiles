@@ -1,6 +1,6 @@
 # Starship prompt tuned for this chezmoi-managed setup
 add_newline = true
-command_timeout = 1000
+command_timeout = 3000
 
 format = "$directory$git_branch$custom_chezmoi$git_metrics$time$line_break$character"
 

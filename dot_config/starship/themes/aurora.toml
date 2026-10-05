@@ -1,7 +1,7 @@
 # aurora - Cold night sky lit by pastel greens, pinks and ice blues.
 
 add_newline = true
-command_timeout = 1000
+command_timeout = 3000
 palette = "aurora"
 
 # Line 1: identity and context, left aligned.
