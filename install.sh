@@ -203,12 +203,19 @@ install_macos_packages() {
 #   bun                     GitHub release binary (extras)
 #   stripe-cli              unavailable by default (extras)
 #   zoxide                  apt `zoxide`, else official installer
+#   1password               unavailable (macOS only)
 #   1password-cli           unavailable by default (extras, 1Password repo)
+#   chatgpt                 unavailable (macOS only)
+#   codex                   unavailable (install manually)
+#   copilot-cli             unavailable (install manually)
 #   font-jetbrains-mono     Nerd Fonts release zip (extras)
+#   github-copilot-app      unavailable (macOS only)
 #   jordanbaird-ice         unavailable (macOS only)
 #   meetingbar              unavailable (macOS only)
 #   mitmproxy               apt `mitmproxy` (extras)
 #   ngrok                   unavailable by default (extras, ngrok repo)
+#   raycast                 unavailable (macOS only)
+#   rectangle               unavailable (macOS only)
 #   wezterm                 GitHub release .deb (extras)
 #
 # Installed on both platforms but not listed in the Brewfile:
