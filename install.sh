@@ -205,6 +205,7 @@ install_macos_packages() {
 #   zoxide                  apt `zoxide`, else official installer
 #   1password               unavailable (macOS only)
 #   1password-cli           unavailable by default (extras, 1Password repo)
+#   boring-notch            unavailable (macOS only)
 #   chatgpt                 unavailable (macOS only)
 #   codex                   unavailable (install manually)
 #   copilot-cli             unavailable (install manually)

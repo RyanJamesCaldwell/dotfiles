@@ -41,6 +41,7 @@ brew "zoxide"
 
 cask "1password"
 cask "1password-cli"
+cask "theboredteam/boring-notch/boring-notch", trusted: true
 cask "chatgpt"
 cask "codex"
 cask "copilot-cli"
