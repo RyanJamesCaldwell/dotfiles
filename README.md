@@ -162,13 +162,21 @@ must not replace existing skills. `tools/` is already excluded from chezmoi targ
 After the pstack skills PR and this companion pin update are reviewed and accepted,
 on each Mac separately:
 
-1. Authenticate GitHub using that Mac's existing approved method. Clone the private
+1. Update this Mac's chezmoi **source checkout** to the accepted dotfiles change
+   before using its helper. First inspect `git -C "$(chezmoi source-path)" status --short`
+   and preserve any local edits. In a clean checkout, fetch its existing origin and
+   fast-forward to the accepted main with `git fetch origin` and
+   `git merge --ff-only origin/main`, both run in that source directory. Stop if the
+   checkout diverges. Confirm the helper's `--help` lists `--skills` and its pin
+   matches the commit below. `chezmoi apply` alone does not update the source Git
+   checkout; an old helper does not support this new option.
+2. Authenticate GitHub using that Mac's existing approved method. Clone the private
    repository into a dedicated `~/.local/share/agent-skills` checkout if absent; do not clone over an existing checkout.
-2. Check out reviewed commit `c3433bb6984a5ac0e62ac3d5ca84f463d84d2691` in a clean
+3. Check out reviewed commit `c3433bb6984a5ac0e62ac3d5ca84f463d84d2691` in a clean
    checkout. The helper rejects other commits, modifications, and untracked files
    (including ignored files). Keep development in `~/code/agent-skills`, not this
    deployment checkout: links reflect later edits to their targets.
-3. Run the command below for a preview of just the seven new skills. Without
+4. Run the command below for a preview of just the seven new skills. Without
    `--skills`, the helper still selects only the original four. An existing
    unselected skill does not block the new subset.
 
@@ -181,7 +189,7 @@ on each Mac separately:
    and compare it with the repository. Move any intentionally retired copy to a
    separately chosen backup outside both discovery directories. The helper never
    moves, deletes, or overwrites it for you, even when its contents match.
-4. Review the preview, then run the same command with `--apply` to create only the
+5. Review the preview, then run the same command with `--apply` to create only the
    selected missing links in `~/.agents/skills`. Already-correct links are idempotent.
    Existing unrelated skills remain untouched. Do not also link them under `.codex`.
 
