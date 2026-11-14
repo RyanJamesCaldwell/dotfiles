@@ -146,7 +146,18 @@ CI runs two jobs on every push and pull request:
 
 MIT License © Ryan Caldwell
 
-## Private agent skills (explicit opt-in)
+## Private configuration
+
+Normal `chezmoi apply` now clones or fast-forwards the referenced private source
+and runs its setup entrypoint afterward. Authenticate GitHub on each machine using
+your existing approved method. Existing source changes and unrelated installations
+are preserved. Private selections and setup logic stay in the private source.
+Public CI skips this integration and uses synthetic local fixtures for its tests.
+
+The earlier manual procedure below is retained pending its separate cleanup; it
+is not required for the automatic apply path.
+
+### Earlier manual procedure (superseded)
 
 The canonical skills live in the private [agent-skills repository](https://github.com/RyanJamesCaldwell/agent-skills).
 Only `monarch-cli`, `reverse-engineer-anything`, `oura-boros`, and `rex` are selected.

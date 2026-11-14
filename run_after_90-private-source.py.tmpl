@@ -1,0 +1,11 @@
+{{ if not (env "CI") }}#!/usr/bin/env python3
+from pathlib import Path
+import subprocess
+import sys
+
+destination = Path({{ .chezmoi.destDir | toJson }})
+entrypoint = destination / '.local/share/agent-skills/tools/chezmoi-sync.py'
+if not entrypoint.is_file():
+    sys.exit('Private setup entrypoint is missing. Update the private source before applying.')
+raise SystemExit(subprocess.call([sys.executable, str(entrypoint), '--destination', str(destination)]))
+{{ end }}
