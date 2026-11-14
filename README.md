@@ -149,36 +149,52 @@ MIT License © Ryan Caldwell
 ## Private agent skills (explicit opt-in)
 
 The canonical skills live in the private [agent-skills repository](https://github.com/RyanJamesCaldwell/agent-skills).
-Only `monarch-cli`, `reverse-engineer-anything`, `oura-boros`, and `rex` are selected.
+The default selection is `monarch-cli`, `reverse-engineer-anything`, `oura-boros`, and `rex`.
+The pstack port adds `arena`, `bro`, `how`, `teach`, `unslop`, `why`, and `architect`
+as an optional subset selected with `--skills`. These seven are Markdown workflows
+with no mandatory runtime installation. Their descriptions and metadata permit
+contextual skill selection in Codex; automatic activation is not guaranteed.
 Dotfiles contains the portable linking helper, not copies of the skills or credentials.
 It is deliberately **not** an automatic chezmoi external or apply hook: public
 bootstrap/CI must not require private GitHub access, and ordinary `chezmoi apply`
 must not replace existing skills. `tools/` is already excluded from chezmoi targets.
 
-After agent-skills PR #1 is accepted, on each Mac separately:
+After the pstack skills PR and this companion pin update are reviewed and accepted,
+on each Mac separately:
 
 1. Authenticate GitHub using that Mac's existing approved method. Clone the private
    repository into a dedicated `~/.local/share/agent-skills` checkout if absent; do not clone over an existing checkout.
-2. Check out reviewed commit `45c96e65fe8df468f29b90d79eac4ed4a2825ad2` in a clean
+2. Check out reviewed commit `c3433bb6984a5ac0e62ac3d5ca84f463d84d2691` in a clean
    checkout. The helper rejects other commits, modifications, and untracked files
    (including ignored files). Keep development in `~/code/agent-skills`, not this
    deployment checkout: links reflect later edits to their targets.
-3. Run `python3 "$(chezmoi source-path)/tools/link-agent-skills.py"` for a preview.
+3. Run the command below for a preview of just the seven new skills. Without
+   `--skills`, the helper still selects only the original four. An existing
+   unselected skill does not block the new subset.
+
+   ```sh
+   python3 "$(chezmoi source-path)/tools/link-agent-skills.py" \
+     --skills arena bro how teach unslop why architect
+   ```
+
    If a chosen skill already exists in `~/.agents/skills` or `~/.codex/skills`, stop
    and compare it with the repository. Move any intentionally retired copy to a
    separately chosen backup outside both discovery directories. The helper never
    moves, deletes, or overwrites it for you, even when its contents match.
 4. Review the preview, then run the same command with `--apply` to create only the
-   four missing links in `~/.agents/skills`. Already-correct links are idempotent.
+   selected missing links in `~/.agents/skills`. Already-correct links are idempotent.
    Existing unrelated skills remain untouched. Do not also link them under `.codex`.
 
-Repeat this opt-in separately on the 16-inch MBP when ready. This PR does not apply
-or sync either machine. Node, Monarch, and Rex still require their own installation;
+Repeat this opt-in separately on the 14-inch and 16-inch MBPs. This PR does not apply
+or sync either machine. Check Codex's skill catalog after installation; refresh or
+restart Codex if needed, then try a contextual request. This verifies each host
+separately. User skills on a Mac do not install into a cloud Dot session.
+Node, Monarch, and Rex still require their own installation;
 see the skills repository for prerequisites. Never copy auth files, Oura token files,
 Monarch sessions, environment files, or health/financial outputs through dotfiles.
 
 Updates are explicit: review the next skills commit, change the helper's pin in a
 PR, then update each clean checkout. Do not use an automatic `git pull`. To roll
-back installation, remove only the four symlinks after verifying their targets,
+back installation, remove only the selected symlinks after verifying their targets,
 then restore your separately retained originals. Skill-file rollback cannot undo
 external actions taken by a CLI or agent while using a skill.

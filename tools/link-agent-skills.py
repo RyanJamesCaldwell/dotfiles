@@ -5,18 +5,25 @@ import os
 from pathlib import Path
 import subprocess
 
-PIN = '45c96e65fe8df468f29b90d79eac4ed4a2825ad2'
+PIN = 'c3433bb6984a5ac0e62ac3d5ca84f463d84d2691'
 SKILLS = ('monarch-cli', 'reverse-engineer-anything', 'oura-boros', 'rex')
+PSTACK_SKILLS = ('arena', 'bro', 'how', 'teach', 'unslop', 'why', 'architect')
+AVAILABLE_SKILLS = SKILLS + PSTACK_SKILLS
 
 
-def plan(source, home):
+def plan(source, home, skills=SKILLS):
+    skills = tuple(skills)
+    if not skills or len(set(skills)) != len(skills):
+        raise ValueError('Choose one or more distinct skills')
+    if any(name not in AVAILABLE_SKILLS for name in skills):
+        raise ValueError('Unknown skill selection')
     source = source.resolve()
     if subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip() != PIN:
         raise ValueError('Checkout must be at the reviewed commit ' + PIN)
     if subprocess.check_output(['git', '-C', str(source), 'status', '--porcelain', '--untracked-files=all', '--ignored'], text=True).strip():
         raise ValueError('Skill checkout must be clean')
     links = []
-    for name in SKILLS:
+    for name in skills:
         target = source / 'skills' / name
         if not (target / 'SKILL.md').is_file():
             raise ValueError('Missing skill: ' + name)
@@ -36,10 +43,12 @@ def plan(source, home):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', type=Path, default=Path.home() / '.local' / 'share' / 'agent-skills')
+    parser.add_argument('--skills', nargs='+', choices=AVAILABLE_SKILLS, default=SKILLS,
+                        help='Link only these skills; default is the original four')
     parser.add_argument('--apply', action='store_true', help='Create missing symlinks; default is preview only')
     args = parser.parse_args()
     try:
-        links = plan(args.source, Path.home())
+        links = plan(args.source, Path.home(), args.skills)
         for dest, target in links:
             print(f'{dest} -> {target}')
         if args.apply:
