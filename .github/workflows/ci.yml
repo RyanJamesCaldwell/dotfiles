@@ -35,6 +35,9 @@ jobs:
           bash -n install.sh
           bash -n .github/scripts/verify-dotfiles.sh
 
+      - name: Test private configuration transport with local fixtures
+        run: python3 tools/test-private-configuration.py
+
       - name: Check generated themes are up to date
         run: ./tools/gen-themes.py --check
 
@@ -117,6 +120,11 @@ jobs:
 
       - name: Bootstrap with install.sh --minimal
         run: ./install.sh --minimal
+
+      - name: Test private configuration transport with local fixtures
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          python3 tools/test-private-configuration.py
 
       - name: Normalise zsh directory permissions
         # The runner image leaves /usr/share/zsh group- and world-writable, so

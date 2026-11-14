@@ -1,0 +1,32 @@
+{{ if not (env "CI") }}#!/usr/bin/env python3
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+root = Path({{ .chezmoi.destDir | toJson }}) / '.local/share/agent-skills'
+if not os.path.lexists(root):
+    sys.exit(0)
+
+
+def git(*args):
+    return subprocess.check_output(['git', '-C', str(root), *args], text=True, stderr=subprocess.DEVNULL).strip()
+
+
+try:
+    if root.is_symlink() or Path(git('rev-parse', '--show-toplevel')).resolve() != root.resolve():
+        raise ValueError('Private source path is not its own checkout; existing files were left unchanged.')
+    if git('remote', 'get-url', 'origin') not in (
+            'https://github.com/RyanJamesCaldwell/agent-skills.git',
+            'git@github.com:RyanJamesCaldwell/agent-skills.git'):
+        raise ValueError('Private source has an unexpected origin; existing files were left unchanged.')
+    if git('status', '--porcelain', '--untracked-files=all', '--ignored'):
+        raise ValueError('Private source has local changes; preserve them before applying.')
+    check = subprocess.run(['git', '-C', str(root), 'merge-base', '--is-ancestor',
+                            'HEAD', 'refs/remotes/origin/main'],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if check.returncode:
+        raise ValueError('Private source has unpublished or diverged commits; preserve them before applying.')
+except (OSError, ValueError, subprocess.CalledProcessError) as error:
+    sys.exit(str(error))
+{{ end }}

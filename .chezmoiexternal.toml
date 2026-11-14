@@ -4,3 +4,14 @@
   refreshPeriod = "168h"
   [".config/wt".pull]
     args = ["--ff-only"]
+
+{{ if not (env "CI") }}
+[".local/share/agent-skills"]
+  type = "git-repo"
+  url = "https://github.com/RyanJamesCaldwell/agent-skills.git"
+  refreshPeriod = "1ns"
+  [".local/share/agent-skills".clone]
+    args = ["--branch", "main", "--single-branch"]
+  [".local/share/agent-skills".pull]
+    args = ["--ff-only", "origin", "main"]
+{{ end }}
