@@ -145,3 +145,40 @@ CI runs two jobs on every push and pull request:
 ## License
 
 MIT License © Ryan Caldwell
+
+## Private agent skills (explicit opt-in)
+
+The canonical skills live in the private [agent-skills repository](https://github.com/RyanJamesCaldwell/agent-skills).
+Only `monarch-cli`, `reverse-engineer-anything`, `oura-boros`, and `rex` are selected.
+Dotfiles contains the portable linking helper, not copies of the skills or credentials.
+It is deliberately **not** an automatic chezmoi external or apply hook: public
+bootstrap/CI must not require private GitHub access, and ordinary `chezmoi apply`
+must not replace existing skills. `tools/` is already excluded from chezmoi targets.
+
+After agent-skills PR #1 is accepted, on each Mac separately:
+
+1. Authenticate GitHub using that Mac's existing approved method. Clone the private
+   repository into a dedicated `~/.local/share/agent-skills` checkout if absent; do not clone over an existing checkout.
+2. Check out reviewed commit `45c96e65fe8df468f29b90d79eac4ed4a2825ad2` in a clean
+   checkout. The helper rejects other commits, modifications, and untracked files
+   (including ignored files). Keep development in `~/code/agent-skills`, not this
+   deployment checkout: links reflect later edits to their targets.
+3. Run `python3 "$(chezmoi source-path)/tools/link-agent-skills.py"` for a preview.
+   If a chosen skill already exists in `~/.agents/skills` or `~/.codex/skills`, stop
+   and compare it with the repository. Move any intentionally retired copy to a
+   separately chosen backup outside both discovery directories. The helper never
+   moves, deletes, or overwrites it for you, even when its contents match.
+4. Review the preview, then run the same command with `--apply` to create only the
+   four missing links in `~/.agents/skills`. Already-correct links are idempotent.
+   Existing unrelated skills remain untouched. Do not also link them under `.codex`.
+
+Repeat this opt-in separately on the 16-inch MBP when ready. This PR does not apply
+or sync either machine. Node, Monarch, and Rex still require their own installation;
+see the skills repository for prerequisites. Never copy auth files, Oura token files,
+Monarch sessions, environment files, or health/financial outputs through dotfiles.
+
+Updates are explicit: review the next skills commit, change the helper's pin in a
+PR, then update each clean checkout. Do not use an automatic `git pull`. To roll
+back installation, remove only the four symlinks after verifying their targets,
+then restore your separately retained originals. Skill-file rollback cannot undo
+external actions taken by a CLI or agent while using a skill.
